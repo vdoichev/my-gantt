@@ -1,0 +1,37 @@
+:host {
+  display: block;
+  background: #fff;
+}
+
+.gantt-header-scroll {
+  /*overflow-x: auto;*/
+}
+
+.months-row {
+  display: flex;
+  height: 32px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+}
+
+.scale-row {
+  display: flex;
+  height: 32px;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.month-cell {
+  text-align: center;
+  font-weight: 600;
+  line-height: 32px;
+  border-right: 1px solid #eee;
+  white-space: nowrap;
+}
+
+.scale-cell {
+  text-align: center;
+  line-height: 32px;
+  font-size: 12px;
+  border-right: 1px solid #eee;
+}

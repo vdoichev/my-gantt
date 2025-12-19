@@ -1,0 +1,27 @@
+<div class="gantt-header-scroll" #scroll>
+
+  <div class="months-row">
+    <!-- MONTHS -->
+    @for (m of months;track m.label){
+      <div
+        class="month-cell"
+        [style.width.px]="m.width"
+      >
+        {{ m.label }}
+      </div>
+    }
+  </div>
+
+  <div class="scale-row">
+    <!-- DAYS / WEEKS -->
+    @for (s of scale;track s.label){
+      <div
+        class="scale-cell"
+        [style.width.px]="s.width"
+      >
+        {{ s.label }}
+      </div>
+    }
+  </div>
+
+</div>

@@ -1,0 +1,96 @@
+.vertical-scroll {
+  height: 600px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.gantt-table {
+  /*overflow: visible !important;*/
+  width: 100%;
+  table-layout: fixed;
+}
+
+.left-scroll {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.mat-row,
+.mat-header-row {
+  height: 48px;
+}
+
+/*.timeline-cell {*/
+/*  position: relative;*/
+/*  padding: 0;*/
+/*}*/
+
+.gantt-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.gantt-header {
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #fff;
+}
+
+.gantt-cell {
+  padding: 0;
+}
+
+.gantt-scroll-container {
+  overflow: hidden;
+  width: 100%;
+}
+
+.timeline {
+  position: relative;
+  min-width: max-content;
+  height: 48px;
+  will-change: transform;
+}
+
+:host ::ng-deep .gantt-header-content {
+  will-change: transform;
+}
+
+.bar {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 24px;
+  background: #3f51b5;
+  border-radius: 4px;
+}
+
+.mat-column-id       { width: 80px; }
+.mat-column-name     { width: 200px; }
+.mat-column-owner    { width: 150px; }
+.mat-column-status   { width: 120px; }
+.mat-column-priority { width: 120px; }
+
+.mat-column-gantt {
+  min-width: 0;
+  padding: 0;
+}
+
+.gantt-footer {
+  padding: 0;
+  height: 16px;
+}
+
+.gantt-x-scroll {
+  height: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.gantt-x-content {
+  width: 3000px; /* ширина всей timeline */
+  height: 1px;
+}
+
