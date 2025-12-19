@@ -1,10 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import {GanttComponent} from './gantt/gantt.component';
+import {GanttTableComponent} from './gantt/gantt-table/gantt-table.component';
 
 @Component({
   selector: 'app-root',
-  imports: [GanttComponent],
+  imports: [GanttTableComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

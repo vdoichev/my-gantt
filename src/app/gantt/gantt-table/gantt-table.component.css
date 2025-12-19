@@ -1,0 +1,106 @@
+.gantt-layout {
+  height: 500px;
+  overflow-y: auto;
+}
+
+.gantt-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.mat-column-gantt {
+  min-width: 0;
+  padding: 0;
+}
+
+.timeline-wrapper {
+  overflow: hidden;
+}
+
+.timeline {
+  position: relative;
+  width: max-content;
+  height: 48px;
+}
+
+.bar {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 24px;
+  background: #3f51b5;
+  border-radius: 4px;
+}
+
+.gantt-footer {
+  height: 16px;
+  padding: 0;
+}
+
+.gantt-x-scroll {
+  height: 16px;
+  overflow-x: auto;
+}
+
+.gantt-x-content {
+  width: 3000px;
+  height: 1px;
+}
+
+.gantt-layout {
+  display: flex;
+  width: 100%;
+  /*height: 100%;*/
+}
+
+.table-pane {
+  min-width: 20%;
+  max-width: 50%;
+  overflow: hidden;
+  /*transition: width 0.18s ease-out;*/
+  transition: width 0.25s cubic-bezier(.2,.8,.2,1);
+}
+
+.gantt-pane {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* SPLITTER */
+.splitter {
+  width: 6px;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+  will-change: transform;
+}
+
+.splitter::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2px;
+  width: 2px;
+  background: #ddd;
+  transition: background 0.2s;
+}
+
+.splitter.dragging {
+  transition: none;
+}
+
+.splitter:hover::after {
+  background: #3f51b5;
+}
+
+.splitter:active::after {
+  background: #1a237e;
+}
+
+.resize-overlay {
+  position: fixed;
+  inset: 0;
+  cursor: col-resize;
+  z-index: 9999;
+}

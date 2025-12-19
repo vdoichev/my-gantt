@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GanttComponent } from './gantt.component';
+import { GanttTableComponent } from './gantt-table.component';
 
 describe('Gantt', () => {
-  let component: GanttComponent;
-  let fixture: ComponentFixture<GanttComponent>;
+  let component: GanttTableComponent;
+  let fixture: ComponentFixture<GanttTableComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GanttComponent]
+      imports: [GanttTableComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(GanttComponent);
+    fixture = TestBed.createComponent(GanttTableComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
