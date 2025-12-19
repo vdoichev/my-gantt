@@ -3,8 +3,8 @@
   <mat-button-toggle value="week">Week</mat-button-toggle>
 </mat-button-toggle-group>
 
-<div class="gantt-layout">
-  <div class="table-pane" [style.width.px]="tableWidth">
+<as-split direction="horizontal">
+  <as-split-area [size]="50">
     <table mat-table [dataSource]="dataSource" class="gantt-table">
 
       <ng-container matColumnDef="id">
@@ -37,23 +37,13 @@
         <td mat-footer-cell *matFooterCellDef></td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="leftColumns"></tr>
-      <tr mat-row *matRowDef="let r; columns: leftColumns"
-          [style.height.px]="rowHeight"></tr>
+      <tr mat-header-row *matHeaderRowDef="leftColumns" [style.height.px]="rowHeight"></tr>
+      <tr mat-row *matRowDef="let r; columns: leftColumns" #leftRow></tr>
       <tr mat-footer-row *matFooterRowDef="leftColumns"></tr>
 
     </table>
-  </div>
-
-  <!-- SPLITTER -->
-  <div
-    class="splitter" #splitter
-    (mousedown)="startResize($event)">
-  </div>
-
-
-  <div class="gantt-pane">
-
+  </as-split-area>
+  <as-split-area [size]="50">
     <table mat-table [dataSource]="dataSource" class="gantt-table">
       <!-- GANTT -->
       <ng-container matColumnDef="gantt">
@@ -92,12 +82,11 @@
 
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="rightColumns"></tr>
-      <tr mat-row *matRowDef="let r; columns: rightColumns"
-          [style.height.px]="rowHeight"></tr>
+      <tr mat-header-row *matHeaderRowDef="rightColumns" [style.height.px]="rowHeight"></tr>
+      <tr mat-row *matRowDef="let row; let i = index; columns: ['gantt']"
+          [style.height.px]="rowHeights[i]"></tr>
       <tr mat-footer-row *matFooterRowDef="rightColumns"></tr>
 
     </table>
-
-  </div>
-</div>
+  </as-split-area>
+</as-split>

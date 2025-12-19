@@ -1,4 +1,4 @@
-import {Component, ElementRef, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {
   MatCell, MatCellDef,
   MatColumnDef, MatFooterCell, MatFooterCellDef, MatFooterRow, MatFooterRowDef,
@@ -11,6 +11,7 @@ import {
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {FormsModule} from '@angular/forms';
 import {GanttHeaderComponent} from '../gantt-header/gantt-header.component';
+import {SplitAreaComponent, SplitComponent} from 'angular-split';
 
 export interface GanttTask {
   id: number;
@@ -42,12 +43,14 @@ export interface GanttTask {
     MatFooterCell,
     MatFooterCellDef,
     MatFooterRow,
-    MatFooterRowDef
+    MatFooterRowDef,
+    SplitComponent,
+    SplitAreaComponent
   ],
   templateUrl: './gantt-table.component.html',
   styleUrl: './gantt-table.component.css',
 })
-export class GanttTableComponent {
+export class GanttTableComponent implements AfterViewInit{
 
   view: 'day' | 'week' = 'day';
 
@@ -57,7 +60,7 @@ export class GanttTableComponent {
   projectStart = new Date('2025-01-01');
   projectEnd   = new Date('2025-02-15');
 
-  rowHeight = 48;
+  rowHeight = 66;
 
   leftColumns = ['id', 'name', 'owner', 'status', 'priority'];
   rightColumns = ['gantt'];
@@ -89,12 +92,27 @@ export class GanttTableComponent {
   @ViewChildren('timeline')
   timelines!: QueryList<ElementRef<HTMLElement>>;
 
-  @ViewChild('splitter', { read: ElementRef })
-  splitterEl!: ElementRef<HTMLElement>;
+  @ViewChildren('leftRow', { read: ElementRef })
+  leftRows!: QueryList<ElementRef<HTMLElement>>;
 
-  private startX = 0;
-  private startWidth = 0;
-  dragging = false;
+  rowHeights: number[] = [];
+  private ro = new ResizeObserver(() => this.syncRowHeights());
+  ngAfterViewInit() {
+    this.syncRowHeights();
+
+    this.leftRows.forEach(r =>
+      this.ro.observe(r.nativeElement)
+    );
+  }
+
+  syncRowHeights() {
+    requestAnimationFrame(() => {
+      this.rowHeights =
+        this.leftRows.map(r =>
+          r.nativeElement.getBoundingClientRect().height
+        );
+    });
+  }
 
   onGanttScroll(left: number) {
     const x = -left;
@@ -106,54 +124,6 @@ export class GanttTableComponent {
       t.nativeElement.style.transform =
         `translateX(${x}px)`
     );
-  }
-
-  tableWidth = 320;
-
-  private resizing = false;
-
-  startResize(e: MouseEvent) {
-    e.preventDefault();
-
-    this.dragging = true;
-    this.startX = e.clientX;
-    this.startWidth = this.tableWidth;
-
-    this.splitterEl.nativeElement.classList.add('dragging');
-    document.body.style.cursor = 'col-resize';
-
-    const move = (ev: MouseEvent) => {
-      if (!this.dragging) return;
-
-      const delta = ev.clientX - this.startX;
-
-      /* 1️⃣ визуально двигаем splitter */
-      this.splitterEl.nativeElement.style.transform =
-        `translateX(${delta}px)`;
-    };
-
-    const up = (ev: MouseEvent) => {
-      if (!this.dragging) return;
-
-      this.dragging = false;
-      document.body.style.cursor = '';
-
-      const delta = ev.clientX - this.startX;
-
-      /* 2️⃣ фиксируем ширину */
-      this.tableWidth = Math.max(200, this.startWidth + delta);
-
-      /* 3️⃣ сбрасываем transform */
-      this.splitterEl.nativeElement.style.transform = '';
-
-      this.splitterEl.nativeElement.classList.remove('dragging');
-
-      window.removeEventListener('mousemove', move);
-      window.removeEventListener('mouseup', up);
-    };
-
-    window.addEventListener('mousemove', move);
-    window.addEventListener('mouseup', up);
   }
 
   offset(task: any): number {

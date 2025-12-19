@@ -104,3 +104,14 @@
   cursor: col-resize;
   z-index: 9999;
 }
+
+.mat-row {
+  box-sizing: border-box;
+}
+
+.mat-cell {
+  box-sizing: border-box;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  line-height: 20px;
+}
