@@ -4,10 +4,10 @@
 </mat-button-toggle-group>
 
 <as-split direction="horizontal">
-  <as-split-area [size]="50">
+  <as-split-area [size]="50" [minSize]="20">
     <table mat-table [dataSource]="dataSource" class="gantt-table">
 
-      <ng-container matColumnDef="id">
+      <ng-container matColumnDef="id" sticky>
         <th mat-header-cell *matHeaderCellDef>ID</th>
         <td mat-cell *matCellDef="let t">{{ t.id }}</td>
         <td mat-footer-cell *matFooterCellDef></td>
@@ -43,7 +43,7 @@
 
     </table>
   </as-split-area>
-  <as-split-area [size]="50">
+  <as-split-area [size]="50" [minSize]="20">
     <table mat-table [dataSource]="dataSource" class="gantt-table">
       <!-- GANTT -->
       <ng-container matColumnDef="gantt">
