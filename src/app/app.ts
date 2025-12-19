@@ -1,5 +1,4 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import {GanttTableComponent} from './gantt/gantt-table/gantt-table.component';
 
 @Component({

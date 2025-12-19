@@ -12,7 +12,6 @@ import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-to
 import {FormsModule} from '@angular/forms';
 import {GanttHeaderComponent} from '../gantt-header/gantt-header.component';
 import {SplitAreaComponent, SplitComponent} from 'angular-split';
-import {MtxSplit, MtxSplitPane} from '@ng-matero/extensions/split';
 
 export interface GanttTask {
   id: number;
