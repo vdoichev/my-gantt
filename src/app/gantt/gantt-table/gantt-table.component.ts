@@ -60,7 +60,7 @@ export class GanttTableComponent implements AfterViewInit{
   projectStart = new Date('2025-01-01');
   projectEnd   = new Date('2026-01-01');
 
-  rowHeight = 66;
+  rowHeaderHeight = 66;
 
   leftColumns = ['id', 'name', 'owner', 'status', 'priority'];
   rightColumns = ['gantt'];

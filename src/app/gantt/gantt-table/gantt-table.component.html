@@ -40,7 +40,7 @@
             <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="leftColumns" [style.height.px]="rowHeight"></tr>
+          <tr mat-header-row *matHeaderRowDef="leftColumns" [style.height.px]="rowHeaderHeight"></tr>
           <tr mat-row *matRowDef="let r; columns: leftColumns" #leftRow></tr>
           <tr mat-footer-row *matFooterRowDef="leftColumns" [style.height.px]="16"></tr>
 
@@ -89,7 +89,7 @@
 
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="rightColumns" [style.height.px]="rowHeight"></tr>
+          <tr mat-header-row *matHeaderRowDef="rightColumns" [style.height.px]="rowHeaderHeight"></tr>
           <tr mat-row *matRowDef="let row; let i = index; columns: ['gantt']"
               [style.height.px]="rowHeights[i]"></tr>
           <tr mat-footer-row *matFooterRowDef="rightColumns" [style.height.px]="16"></tr>
