@@ -58,7 +58,7 @@ export class GanttTableComponent implements AfterViewInit{
   weekWidth = 140;
 
   projectStart = new Date('2025-01-01');
-  projectEnd   = new Date('2025-02-15');
+  projectEnd   = new Date('2026-01-01');
 
   rowHeight = 66;
 
