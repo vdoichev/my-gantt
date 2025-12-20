@@ -4,8 +4,15 @@
 }
 
 .gantt-table {
-  width: 100%;
+  width: max-content;   /* ⬅️ ВАЖНО */
   table-layout: fixed;
+}
+
+.gantt-table th {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 2;
 }
 
 .mat-column-gantt {
@@ -60,6 +67,9 @@
 
 .table-pane, .gantt-pane {
   height: auto; /* под контент */
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .mat-row {
