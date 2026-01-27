@@ -8,7 +8,7 @@
              [gutterSize]="8">
     <as-split-area [size]="50" [minSize]="20">
       <div class="table-pane">
-        <table mat-table [dataSource]="dataSource" class="gantt-table">
+        <table mat-table [dataSource]="tableDataSource" class="gantt-table">
 
           <ng-container matColumnDef="id" sticky>
             <th mat-header-cell *matHeaderCellDef>ID</th>
@@ -18,7 +18,24 @@
 
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>Task</th>
-            <td mat-cell *matCellDef="let t">{{ t.name }}</td>
+            <td mat-cell *matCellDef="let node">
+              <div
+                class="tree-cell"
+                [style.padding-left.px]="node.level * 40"
+              >
+                @if (node.expandable) {
+                  <button
+                    mat-icon-button
+                    (click)="treeControl.toggle(node)"
+                  >
+                    <mat-icon>
+                      {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+                    </mat-icon>
+                  </button>
+                }
+                {{ node.name }}
+              </div>
+            </td>
             <td mat-footer-cell *matFooterCellDef></td>
           </ng-container>
 
@@ -51,7 +68,7 @@
 
     <as-split-area [size]="50" [minSize]="20">
       <div class="gantt-pane">
-        <table mat-table [dataSource]="dataSource" class="gantt-table">
+        <table mat-table [dataSource]="tableDataSource" class="gantt-table">
           <!-- GANTT -->
           <ng-container matColumnDef="gantt">
 
@@ -65,15 +82,29 @@
               ></app-gantt-header>
             </th>
 
-            <td mat-cell *matCellDef="let task" class="gantt-cell">
-              <div class="timeline-wrapper">
-                <div class="timeline" #timeline>
-                  <div
-                    class="bar"
-                    [style.left.px]="offset(task)"
-                    [style.width.px]="width(task)">
-                  </div>
-                </div>
+<!--            <td mat-cell *matCellDef="let node" class="gantt-cell">-->
+<!--              <div class="timeline-wrapper">-->
+<!--                <div class="timeline" #timeline>-->
+<!--                  <div-->
+<!--                    class="bar"-->
+<!--                    [style.left.px]="offset(node)"-->
+<!--                    [style.width.px]="width(node)">-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </td>-->
+
+            <td
+              mat-cell
+              *matCellDef="let node; let i = index"
+              [style.height.px]="rowHeights[i]"
+            >
+              <div class="timeline" #timeline>
+                <div
+                  class="bar"
+                  [style.left.px]="offset(node)"
+                  [style.width.px]="width(node)"
+                ></div>
               </div>
             </td>
 

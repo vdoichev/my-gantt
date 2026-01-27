@@ -82,3 +82,21 @@
   padding-bottom: 8px;
   line-height: 20px;
 }
+
+.tree-cell {
+  display: flex;
+  align-items: center;
+  height: 48px;
+}
+
+.mat-icon-button {
+  width: 24px;
+  height: 24px;
+  margin-right: 4px;
+}
+
+.timeline {
+  position: relative;
+  height: 48px;
+  min-width: max-content;
+}

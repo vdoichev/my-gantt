@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {
   MatCell, MatCellDef,
   MatColumnDef, MatFooterCell, MatFooterCellDef, MatFooterRow, MatFooterRowDef,
@@ -6,12 +6,16 @@ import {
   MatHeaderCellDef,
   MatHeaderRow, MatHeaderRowDef,
   MatRow, MatRowDef,
-  MatTable
+  MatTable, MatTableDataSource
 } from '@angular/material/table';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {FormsModule} from '@angular/forms';
 import {GanttHeaderComponent} from '../gantt-header/gantt-header.component';
 import {SplitAreaComponent, SplitComponent} from 'angular-split';
+import {MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule} from '@angular/material/tree';
+import {FlatTreeControl} from '@angular/cdk/tree';
+import {MatIconButton} from '@angular/material/button';
+import {MatIcon} from '@angular/material/icon';
 
 export interface GanttTask {
   id: number;
@@ -21,6 +25,29 @@ export interface GanttTask {
   priority: string;
   start: Date;
   end: Date;
+}
+
+export interface TaskNode {
+  id: number;
+  name: string;
+  owner: string;
+  status: string;
+  priority: string;
+  start: Date;
+  end: Date;
+  children?: TaskNode[];
+}
+
+export interface TaskFlatNode {
+  id: number;
+  name: string;
+  owner: string;
+  status: string;
+  priority: string;
+  start: Date;
+  end: Date;
+  level: number;
+  expandable: boolean;
 }
 
 @Component({
@@ -45,12 +72,15 @@ export interface GanttTask {
     MatFooterRow,
     MatFooterRowDef,
     SplitComponent,
-    SplitAreaComponent
+    SplitAreaComponent,
+    MatTreeModule,
+    MatIconButton,
+    MatIcon
   ],
   templateUrl: './gantt-table.component.html',
   styleUrl: './gantt-table.component.css',
 })
-export class GanttTableComponent implements AfterViewInit{
+export class GanttTableComponent implements OnInit, AfterViewInit{
 
   view: 'day' | 'week' = 'day';
 
@@ -65,7 +95,7 @@ export class GanttTableComponent implements AfterViewInit{
   leftColumns = ['id', 'name', 'owner', 'status', 'priority'];
   rightColumns = ['gantt'];
 
-  dataSource = [
+  EXAMPLE_DATA: TaskNode[] = [
     {
       id: 1,
       name: 'Design',
@@ -73,7 +103,11 @@ export class GanttTableComponent implements AfterViewInit{
       status: 'In Progress',
       priority: 'High',
       start: new Date('2025-01-02'),
-      end: new Date('2025-01-10')
+      end: new Date('2025-01-10'),
+      children: [
+        { id: 21, name: 'Design 1', owner: 'Alex', status: 'In Progress', priority: 'High', start: new Date('2025-01-02'), end: new Date('2025-01-05') },
+        { id: 22, name: 'Design 2', owner: 'Alex', status: 'In Progress', priority: 'High', start: new Date('2025-01-07'), end: new Date('2025-01-10') },
+      ]
     },
     {
       id: 2,
@@ -85,6 +119,75 @@ export class GanttTableComponent implements AfterViewInit{
       end: new Date('2025-02-05')
     }
   ];
+
+  private _transformer = (node: TaskNode, level: number) => {
+    return {
+      expandable: !!node.children && node.children.length > 0,
+      id: node.id,
+      name: node.name,
+      owner: node.owner,
+      status: node.status,
+      priority: node.priority,
+      start: node.start,
+      end: node.end,
+      level,
+    };
+  };
+
+  treeControl = new FlatTreeControl<TaskFlatNode>(
+    node => node.level,
+    node => node.expandable,
+  );
+
+  treeFlattener = new MatTreeFlattener(
+    this._transformer,
+    node => node.level,
+    node => node.expandable,
+    node => node.children,
+  );
+
+  tableDataSource = new MatTableDataSource<TaskFlatNode>();
+  dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+
+  updateTableData() {
+    this.tableDataSource.data = this.treeControl.dataNodes.filter(node =>
+      this.isVisible(node)
+    );
+  }
+
+  isVisible(node: TaskFlatNode): boolean {
+    if (node.level === 0) return true;
+
+    let parent = this.getParent(node);
+    while (parent) {
+      if (!this.treeControl.isExpanded(parent)) {
+        return false;
+      }
+      parent = this.getParent(parent);
+    }
+    return true;
+  }
+
+  getParent(node: TaskFlatNode): TaskFlatNode | null {
+    const nodeIndex = this.treeControl.dataNodes.indexOf(node);
+    for (let i = nodeIndex - 1; i >= 0; i--) {
+      const current = this.treeControl.dataNodes[i];
+      if (current.level < node.level) {
+        return current;
+      }
+    }
+    return null;
+  }
+
+  ngOnInit(): void {
+    this.dataSource.data = this.EXAMPLE_DATA;
+
+    this.treeControl.expansionModel.changed.subscribe(() => {
+      this.updateTableData();
+    });
+
+    this.updateTableData();
+  }
 
   @ViewChild(GanttHeaderComponent, { read: ElementRef })
   headerEl!: ElementRef<HTMLElement>;
