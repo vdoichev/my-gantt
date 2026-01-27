@@ -116,7 +116,10 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
       status: 'Open',
       priority: 'Medium',
       start: new Date('2025-01-08'),
-      end: new Date('2025-02-05')
+      end: new Date('2025-02-05'),
+      children: [
+        { id: 31, name: 'Development 1', owner: 'Kate', status: 'Open', priority: 'Medium', start: new Date('2025-01-08'), end: new Date('2025-01-15') },
+      ]
     }
   ];
 
@@ -148,11 +151,31 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
   tableDataSource = new MatTableDataSource<TaskFlatNode>();
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+  private parentMap = new Map<TaskFlatNode, TaskFlatNode | null>();
 
   updateTableData() {
     this.tableDataSource.data = this.treeControl.dataNodes.filter(node =>
       this.isVisible(node)
     );
+  }
+
+  buildParentMap() {
+    this.parentMap.clear();
+
+    const stack: TaskFlatNode[] = [];
+
+    for (const node of this.treeControl.dataNodes) {
+      while (stack.length && stack[stack.length - 1].level >= node.level) {
+        stack.pop();
+      }
+
+      const parent = stack.length
+        ? stack[stack.length - 1]
+        : null;
+
+      this.parentMap.set(node, parent);
+      stack.push(node);
+    }
   }
 
   isVisible(node: TaskFlatNode): boolean {
@@ -169,18 +192,13 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
   }
 
   getParent(node: TaskFlatNode): TaskFlatNode | null {
-    const nodeIndex = this.treeControl.dataNodes.indexOf(node);
-    for (let i = nodeIndex - 1; i >= 0; i--) {
-      const current = this.treeControl.dataNodes[i];
-      if (current.level < node.level) {
-        return current;
-      }
-    }
-    return null;
+    return this.parentMap.get(node) ?? null;
   }
 
   ngOnInit(): void {
     this.dataSource.data = this.EXAMPLE_DATA;
+
+    this.buildParentMap();
 
     this.treeControl.expansionModel.changed.subscribe(() => {
       this.updateTableData();
