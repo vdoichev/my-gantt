@@ -17,16 +17,6 @@ import {FlatTreeControl} from '@angular/cdk/tree';
 import {MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 
-export interface GanttTask {
-  id: number;
-  name: string;
-  owner: string;
-  status: string;
-  priority: string;
-  start: Date;
-  end: Date;
-}
-
 export interface TaskNode {
   id: number;
   name: string;
@@ -87,38 +77,50 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
   dayWidth = 32;
   weekWidth = 140;
 
-  projectStart = new Date('2025-01-01');
-  projectEnd   = new Date('2026-01-01');
+  today = new Date();
+  todayOffset = 0;
+
+  projectStart = new Date('2026-01-01');
+  projectEnd   = new Date('2027-01-01');
 
   rowHeaderHeight = 66;
 
-  leftColumns = ['id', 'name', 'owner', 'status', 'priority'];
+  leftColumns = ['name', 'owner', 'status', 'priority'];
   rightColumns = ['gantt'];
+
+  set viewMode(v: 'day' | 'week') {
+    this.view = v;
+    this.updateTodayOffset();
+
+    requestAnimationFrame(() => {
+      this.scrollToToday(false);
+    });
+  }
 
   EXAMPLE_DATA: TaskNode[] = [
     {
       id: 1,
-      name: 'Design',
-      owner: 'Alex',
-      status: 'In Progress',
-      priority: 'High',
-      start: new Date('2025-01-02'),
-      end: new Date('2025-01-10'),
+      name: 'Причал № 1',
+      owner: '125',
+      status: '',
+      priority: '',
+      start: new Date('2026-01-02'),
+      end: new Date('2026-01-10'),
       children: [
-        { id: 21, name: 'Design 1', owner: 'Alex', status: 'In Progress', priority: 'High', start: new Date('2025-01-02'), end: new Date('2025-01-05') },
-        { id: 22, name: 'Design 2', owner: 'Alex', status: 'In Progress', priority: 'High', start: new Date('2025-01-07'), end: new Date('2025-01-10') },
+        { id: 21, name: 'LADY JAMILA, 9316983, Балкер', owner: '110', status: 'In Progress', priority: 'High', start: new Date('2026-01-02'), end: new Date('2026-01-05') },
+        { id: 22, name: 'HIGHLAND-A, 9194452, Суховантаж', owner: '78', status: 'In Progress', priority: 'High', start: new Date('2026-01-07'), end: new Date('2026-01-10') },
       ]
     },
     {
       id: 2,
-      name: 'Development',
-      owner: 'Kate',
-      status: 'Open',
-      priority: 'Medium',
-      start: new Date('2025-01-08'),
-      end: new Date('2025-02-05'),
+      name: 'Причал № 34',
+      owner: '225,7',
+      status: '',
+      priority: '',
+      start: new Date('2026-01-08'),
+      end: new Date('2026-02-05'),
       children: [
-        { id: 31, name: 'Development 1', owner: 'Kate', status: 'Open', priority: 'Medium', start: new Date('2025-01-08'), end: new Date('2025-01-15') },
+        { id: 31, name: 'KAVO ALKYON, 9291121, Балкер', owner: '300', status: 'Open', priority: 'Medium', start: new Date('2026-01-08'), end: new Date('2026-01-15') },
       ]
     }
   ];
@@ -205,6 +207,8 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     });
 
     this.updateTableData();
+    this.updateTodayOffset();
+    this.waitForScrollableAndScrollToToday();
   }
 
   @ViewChild(GanttHeaderComponent, { read: ElementRef })
@@ -216,13 +220,40 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
   @ViewChildren('leftRow', { read: ElementRef })
   leftRows!: QueryList<ElementRef<HTMLElement>>;
 
+  @ViewChild('todayLine', { read: ElementRef })
+  todayLine!: ElementRef<HTMLElement>;
+
+  @ViewChild('xScroll', { read: ElementRef })
+  xScroll!: ElementRef<HTMLDivElement>;
+
   rowHeights: number[] = [];
   private ro = new ResizeObserver(() => this.syncRowHeights());
+
   ngAfterViewInit() {
     this.syncRowHeights();
 
     this.leftRows.forEach(r =>
       this.ro.observe(r.nativeElement)
+    );
+
+    this.updateTodayOffset();
+
+    requestAnimationFrame(() => {
+      this.waitForScrollableAndScrollToToday();
+    });
+  }
+
+  waitForScrollableAndScrollToToday() {
+    const el = this.xScroll?.nativeElement;
+    if (!el) return;
+
+    if (el.scrollWidth > el.clientWidth) {
+      this.scrollToToday(false);
+      return;
+    }
+
+    requestAnimationFrame(() =>
+      this.waitForScrollableAndScrollToToday()
     );
   }
 
@@ -257,5 +288,79 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     const days =
       (task.end.getTime() - task.start.getTime()) / 86400000 + 1;
     return days * this.dayWidth;
+  }
+
+  startOfDay(d: Date): Date {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
+  startOfWeek(d: Date): Date {
+    const date = new Date(d);
+    const day = date.getDay() || 7;
+    date.setDate(date.getDate() - day + 1);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+
+
+  updateTodayOffset() {
+    const msPerDay = 86400000;
+
+    const today = this.startOfDay(this.today);
+    const start = this.startOfDay(this.projectStart);
+    const end   = this.startOfDay(this.projectEnd);
+
+    if (today < start) {
+      this.todayOffset = 0;
+      return;
+    }
+
+    if (today > end) {
+      this.todayOffset =
+        this.view === 'day'
+          ? ((end.getTime() - start.getTime()) / msPerDay) * this.dayWidth
+          : ((end.getTime() - start.getTime()) / (msPerDay * 7)) * this.weekWidth;
+      return;
+    }
+
+    if (this.view === 'day') {
+      const days = (today.getTime() - start.getTime()) / msPerDay;
+      this.todayOffset = days * this.dayWidth;
+    } else {
+      const weeks =
+        (this.startOfWeek(today).getTime() -
+          this.startOfWeek(start).getTime()) /
+        (msPerDay * 7);
+      this.todayOffset = weeks * this.weekWidth;
+    }
+  }
+
+  scrollToToday(center = true) {
+    if (!this.xScroll) return;
+
+    const el = this.xScroll.nativeElement;
+
+    if (el.scrollWidth <= el.clientWidth) return;
+
+    const viewport = el.clientWidth;
+
+    let target =
+      this.todayOffset -
+      (center ? viewport / 2 : viewport * 0.3);
+
+    target = Math.max(0, Math.min(target, el.scrollWidth - viewport));
+
+    el.scrollLeft = target;
+    this.onGanttScroll(target);
+  }
+
+
+  get ganttContentWidth(): number {
+    const days =
+      (this.projectEnd.getTime() - this.projectStart.getTime()) / 86400000;
+
+    return this.view === 'day'
+      ? days * this.dayWidth
+      : (days / 7) * this.weekWidth;
   }
 }

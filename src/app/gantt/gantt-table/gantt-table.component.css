@@ -50,7 +50,7 @@
 }
 
 .gantt-x-content {
-  width: 3000px;
+  /*width: 3000px;*/
   height: 1px;
 }
 
@@ -99,4 +99,49 @@
   position: relative;
   height: 48px;
   min-width: max-content;
+}
+
+.gantt-pane {
+  position: relative;
+}
+
+.gantt-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 16px; /* footer */
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.today-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #1976d2; /* material blue */
+  opacity: 0.9;
+}
+
+.today-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -4px;
+  width: 10px;
+  height: 10px;
+  background: #1976d2;
+  border-radius: 50%;
+}
+
+.today-line::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -4px;
+  width: 10px;
+  height: 10px;
+  background: #1976d2;
+  border-radius: 50%;
 }
