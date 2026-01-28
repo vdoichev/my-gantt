@@ -80,8 +80,8 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
   today = new Date();
   todayOffset = 0;
 
-  projectStart = new Date('2026-01-01');
-  projectEnd   = new Date('2027-01-01');
+  projectStart = new Date(2026, 0, 1);
+  projectEnd   = new Date(2027, 0, 1);
 
   rowHeaderHeight = 66;
 
@@ -328,13 +328,13 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
     if (this.view === 'day') {
       const days = (today.getTime() - start.getTime()) / msPerDay;
-      this.todayOffset = days * this.dayWidth;
+      this.todayOffset = days * (this.dayWidth + 0.8) + this.dayWidth / 2;
     } else {
       const weeks =
         (this.startOfWeek(today).getTime() -
           this.startOfWeek(start).getTime()) /
         (msPerDay * 7);
-      this.todayOffset = weeks * this.weekWidth;
+      this.todayOffset = weeks * (this.weekWidth + 0.8) + this.weekWidth / 2;
     }
   }
 
