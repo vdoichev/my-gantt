@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {
   MatCell, MatCellDef,
   MatColumnDef, MatFooterCell, MatFooterCellDef, MatFooterRow, MatFooterRowDef,
@@ -76,6 +76,7 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
   dayWidth = 32;
   weekWidth = 140;
+  borderWidth = 0.8;
 
   today = new Date();
   todayOffset = 0;
@@ -281,16 +282,48 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     );
   }
 
-  offset(task: any): number {
-    const days =
-      (task.start.getTime() - this.projectStart.getTime()) / 86400000;
-    return days * this.dayWidth;
+  private toUtcDay(d: Date): number {
+    return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
   }
 
-  width(task: any): number {
-    const days =
-      (task.end.getTime() - task.start.getTime()) / 86400000 + 1;
-    return days * this.dayWidth;
+  private diffDays(a: Date, b: Date): number {
+    return (this.toUtcDay(a) - this.toUtcDay(b)) / 86400000;
+  }
+
+  offset(task: TaskFlatNode): number {
+    if (this.view === 'day') {
+      const days = this.diffDays(task.start, this.projectStart);
+      return days * (this.dayWidth + this.borderWidth);
+    }
+
+    // week view
+    const startWeek = this.startOfWeek(this.projectStart);
+    const taskWeekStart = this.startOfWeek(task.start);
+
+    const weeksFromStart =
+      this.diffDays(taskWeekStart, startWeek) / 7;
+
+    // fractional offset внутри недели
+    const dayOffsetInWeek =
+      this.diffDays(task.start, taskWeekStart) / 7;
+
+    return (weeksFromStart + dayOffsetInWeek) * this.weekWidth;
+  }
+
+  width(task: TaskFlatNode): number {
+    if (this.view === 'day') {
+      const days =
+        this.diffDays(task.end, task.start) + 1;
+      return days * (this.dayWidth + this.borderWidth);
+    }
+
+    // week view
+    const durationDays =
+      this.diffDays(task.end, task.start) + 1;
+
+    const weeks = durationDays / 7;
+
+    return Math.max((this.weekWidth + this.borderWidth) * 0.3, weeks * (this.weekWidth + this.borderWidth));
   }
 
   startOfDay(d: Date): Date {
@@ -328,13 +361,13 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
     if (this.view === 'day') {
       const days = (today.getTime() - start.getTime()) / msPerDay;
-      this.todayOffset = days * (this.dayWidth + 0.8) + this.dayWidth / 2;
+      this.todayOffset = days * (this.dayWidth + this.borderWidth) + this.dayWidth / 2;
     } else {
       const weeks =
         (this.startOfWeek(today).getTime() -
           this.startOfWeek(start).getTime()) /
         (msPerDay * 7);
-      this.todayOffset = weeks * (this.weekWidth + 0.8) + this.weekWidth / 2;
+      this.todayOffset = weeks * (this.weekWidth + this.borderWidth) + this.weekWidth / 2;
     }
   }
 
