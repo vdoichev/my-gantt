@@ -1,11 +1,13 @@
 import {ChangeDetectionStrategy, Component, ElementRef, Input, ViewChild} from '@angular/core';
 
 export interface ScaleCell {
+  id: number;
   label: string;
   width: number;
 }
 
 export interface MonthCell {
+  id: number;
   label: string;
   width: number;
 }
@@ -35,8 +37,10 @@ export class GanttHeaderComponent {
     const cur = new Date(this.projectStart);
 
     if (this.view === 'day') {
+      let index = 0
       while (cur <= this.projectEnd) {
         res.push({
+          id: index++,
           label: cur.getDate().toString(),
           width: this.dayWidth
         });
@@ -45,8 +49,10 @@ export class GanttHeaderComponent {
     }
 
     if (this.view === 'week') {
+      let index = 0
       while (cur <= this.projectEnd) {
         res.push({
+          id: index++,
           label: `W${this.getWeek(cur)}`,
           width: this.weekWidth
         });
@@ -69,10 +75,11 @@ export class GanttHeaderComponent {
 
     const unit = this.view === 'day' ? this.dayWidth : this.weekWidth;
     const step = this.view === 'day' ? 1 : 7;
-
+    let index = 0
     while (cur <= this.projectEnd) {
       if (cur.getMonth() !== m || cur.getFullYear() !== y) {
         res.push({
+          id: index++,
           label: this.monthLabel(m, y),
           width
         });
@@ -86,6 +93,7 @@ export class GanttHeaderComponent {
     }
 
     res.push({
+      id: index++,
       label: this.monthLabel(m, y),
       width
     });

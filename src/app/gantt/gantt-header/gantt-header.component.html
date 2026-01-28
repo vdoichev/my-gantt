@@ -2,7 +2,7 @@
 
   <div class="months-row">
     <!-- MONTHS -->
-    @for (m of months;track m.label){
+    @for (m of months;track m.id){
       <div
         class="month-cell"
         [style.width.px]="m.width"
@@ -14,7 +14,7 @@
 
   <div class="scale-row">
     <!-- DAYS / WEEKS -->
-    @for (s of scale;track s.label){
+    @for (s of scale;track s.id){
       <div
         class="scale-cell"
         [style.width.px]="s.width"
