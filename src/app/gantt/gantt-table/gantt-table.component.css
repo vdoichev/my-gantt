@@ -107,7 +107,7 @@
 
 .gantt-overlay {
   position: absolute;
-  top: 0;
+  top: 60px;
   bottom: 16px; /* footer */
   left: 0;
   right: 0;
@@ -120,7 +120,7 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  background: #1976d2; /* material blue */
+  background: rgba(25, 118, 210);
   opacity: 0.9;
 }
 
@@ -131,7 +131,7 @@
   left: -4px;
   width: 10px;
   height: 10px;
-  background: #1976d2;
+  background: rgba(25, 118, 210);
   border-radius: 50%;
 }
 
@@ -142,6 +142,6 @@
   left: -4px;
   width: 10px;
   height: 10px;
-  background: #1976d2;
+  background: rgba(25, 118, 210);
   border-radius: 50%;
 }
