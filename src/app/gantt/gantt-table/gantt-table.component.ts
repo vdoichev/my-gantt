@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {
   MatCell, MatCellDef,
   MatColumnDef, MatFooterCell, MatFooterCellDef, MatFooterRow, MatFooterRowDef,
@@ -88,6 +88,9 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
   leftColumns = ['name', 'owner', 'status', 'priority'];
   rightColumns = ['gantt'];
 
+  get viewMode(): 'day' | 'week' {
+    return this.view;
+  }
   set viewMode(v: 'day' | 'week') {
     this.view = v;
     this.updateTodayOffset();
@@ -208,7 +211,7 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
     this.updateTableData();
     this.updateTodayOffset();
-    this.waitForScrollableAndScrollToToday();
+    // ранний вызов удалён — прокрутка должна запускаться после рендеринга (ngAfterViewInit)
   }
 
   @ViewChild(GanttHeaderComponent, { read: ElementRef })
