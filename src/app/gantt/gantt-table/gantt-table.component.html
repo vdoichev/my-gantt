@@ -85,8 +85,8 @@
                 [projectStart]="projectStart"
                 [projectEnd]="projectEnd"
                 [view]="view"
-                [dayWidth]="dayWidth"
-                [weekWidth]="weekWidth"
+                [dayWidth]="dayWidth + borderWidth"
+                [weekWidth]="weekWidth + borderWidth"
               ></app-gantt-header>
             </th>
 
@@ -104,14 +104,6 @@
 
             <!-- FOOTER: ОДИН X-SCROLL -->
             <td mat-footer-cell *matFooterCellDef class="gantt-footer">
-              <div
-                class="gantt-x-scroll"
-                #xScroll
-                (scroll)="onGanttScroll(xScroll.scrollLeft)">
-                <div class="gantt-x-content"
-                     [style.width.px]="ganttContentWidth"
-                ></div>
-              </div>
             </td>
 
           </ng-container>
@@ -122,6 +114,17 @@
           <tr mat-footer-row *matFooterRowDef="rightColumns" [style.height.px]="16"></tr>
 
         </table>
+
+        <div
+          class="gantt-x-scroll"
+          #xScroll
+          (scroll)="onGanttScroll(xScroll.scrollLeft)">
+          <div
+            class="gantt-x-content"
+            [style.width.px]="ganttContentWidth"
+          ></div>
+        </div>
+
       </div>
     </as-split-area>
   </as-split>
