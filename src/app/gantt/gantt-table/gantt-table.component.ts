@@ -100,7 +100,7 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     this.updateTodayOffset();
 
     requestAnimationFrame(() => {
-      this.scrollToToday(false);
+      this.scrollToToday('start');
     });
   }
 
@@ -258,7 +258,6 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
     if (!el || !rt) return;
 
-    // если ещё не успела выставиться ширина контента — подождём
     const viewport = rt.clientWidth;
     const scrollWidth = el.scrollWidth;
 
@@ -269,13 +268,12 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
       return;
     }
 
-    // если реально есть куда скроллить — скроллим
     if (scrollWidth > viewport + 1) {
-      this.scrollToToday(false);
+      // ✅ today у левого края при загрузке
+      this.scrollToToday('start');
       return;
     }
 
-    // иначе подождём ещё чуть-чуть (например, когда Angular дорисует header/rows)
     if (this.scrollTry++ < this.maxScrollTries) {
       requestAnimationFrame(() => this.waitForScrollableAndScrollToToday());
     }
@@ -435,19 +433,31 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
   }
 
 
-  scrollToToday(center = true) {
+  private get stepPx(): number {
+    return this.view === 'day'
+      ? (this.dayWidth + this.borderWidth)
+      : (this.weekWidth + this.borderWidth);
+  }
+
+  scrollToToday(align: 'center' | 'start' = 'center') {
     if (!this.xScroll) return;
 
     const el = this.xScroll.nativeElement;
     const rt = this.rightArea?.nativeElement;
+    if (!rt) return;
 
     if (el.scrollWidth <= rt.clientWidth) return;
 
     const viewport = rt.clientWidth;
 
+    // todayOffset у нас в центре клетки → чтобы показать клетку с today в начале,
+    // смещаемся на половину шага влево и добавляем небольшой отступ
+    const leftPadding = 8; // можно 0/8/16 как нравится
+
     let target =
-      this.todayOffset -
-      (center ? viewport / 2 : viewport * 0.3);
+      align === 'start'
+        ? (this.todayOffset - this.stepPx / 2 - leftPadding)
+        : (this.todayOffset - viewport / 2);
 
     target = Math.max(0, Math.min(target, el.scrollWidth - viewport));
 
