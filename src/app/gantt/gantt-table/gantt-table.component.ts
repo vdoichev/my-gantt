@@ -230,6 +230,9 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
   @ViewChild('xScroll', { read: ElementRef })
   xScroll!: ElementRef<HTMLDivElement>;
 
+  @ViewChild('rightArea', { read: ElementRef })
+  rightArea!: ElementRef<HTMLDivElement>;
+
   rowHeights: number[] = [];
   private ro = new ResizeObserver(() => this.syncRowHeights());
 
@@ -249,9 +252,12 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
   waitForScrollableAndScrollToToday() {
     const el = this.xScroll?.nativeElement;
+    const rt = this.rightArea?.nativeElement;
     if (!el) return;
 
-    if (el.scrollWidth > el.clientWidth) {
+    console.log('el.ScrollWidth:', el.scrollWidth, 'rt.ClientWidth:', rt.clientWidth);
+
+    if (el.scrollWidth > rt.clientWidth) {
       this.scrollToToday(false);
       return;
     }
@@ -375,10 +381,11 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     if (!this.xScroll) return;
 
     const el = this.xScroll.nativeElement;
+    const rt = this.rightArea?.nativeElement;
 
-    if (el.scrollWidth <= el.clientWidth) return;
+    if (el.scrollWidth <= rt.clientWidth) return;
 
-    const viewport = el.clientWidth;
+    const viewport = rt.clientWidth;
 
     let target =
       this.todayOffset -
