@@ -27,6 +27,7 @@
   line-height: 32px;
   border-right: 1px solid #eee;
   white-space: nowrap;
+  box-sizing: border-box; /* ✅ важно */
 }
 
 .scale-cell {
@@ -34,4 +35,5 @@
   line-height: 32px;
   font-size: 12px;
   border-right: 1px solid #eee;
+  box-sizing: border-box; /* ✅ важно */
 }

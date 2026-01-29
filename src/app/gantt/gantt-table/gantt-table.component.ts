@@ -76,7 +76,6 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
   dayWidth = 32;
   weekWidth = 140;
-  borderWidth = 0.8;
 
   today = new Date();
   todayOffset = 0;
@@ -89,6 +88,9 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
   leftColumns = ['name', 'owner', 'status', 'priority'];
   rightColumns = ['gantt'];
 
+  private scrollTry = 0;
+  private readonly maxScrollTries = 60; // ~1 сек при rAF
+
   get viewMode(): 'day' | 'week' {
     return this.view;
   }
@@ -97,7 +99,7 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     this.updateTodayOffset();
 
     requestAnimationFrame(() => {
-      this.scrollToToday(false);
+      this.scrollToToday('start');
     });
   }
 
@@ -203,7 +205,7 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
   ngOnInit(): void {
     this.dataSource.data = this.EXAMPLE_DATA;
-
+    this.applyProjectRangeFromData();
     this.buildParentMap();
 
     this.treeControl.expansionModel.changed.subscribe(() => {
@@ -245,26 +247,35 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
     this.updateTodayOffset();
 
-    requestAnimationFrame(() => {
-      this.waitForScrollableAndScrollToToday();
-    });
+    this.scrollTry = 0;
+    requestAnimationFrame(() => this.waitForScrollableAndScrollToToday());
   }
 
-  waitForScrollableAndScrollToToday() {
+  private waitForScrollableAndScrollToToday() {
     const el = this.xScroll?.nativeElement;
     const rt = this.rightArea?.nativeElement;
-    if (!el) return;
 
-    console.log('el.ScrollWidth:', el.scrollWidth, 'rt.ClientWidth:', rt.clientWidth);
+    if (!el || !rt) return;
 
-    if (el.scrollWidth > rt.clientWidth) {
-      this.scrollToToday(false);
+    const viewport = rt.clientWidth;
+    const scrollWidth = el.scrollWidth;
+
+    if (viewport <= 0 || scrollWidth <= 0) {
+      if (this.scrollTry++ < this.maxScrollTries) {
+        requestAnimationFrame(() => this.waitForScrollableAndScrollToToday());
+      }
       return;
     }
 
-    requestAnimationFrame(() =>
-      this.waitForScrollableAndScrollToToday()
-    );
+    if (scrollWidth > viewport + 1) {
+      // ✅ today у левого края при загрузке
+      this.scrollToToday('start');
+      return;
+    }
+
+    if (this.scrollTry++ < this.maxScrollTries) {
+      requestAnimationFrame(() => this.waitForScrollableAndScrollToToday());
+    }
   }
 
   syncRowHeights() {
@@ -286,6 +297,11 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
       t.nativeElement.style.transform =
         `translateX(${x}px)`
     );
+
+    // ✅ ВАЖНО: линия "сегодня" должна двигаться вместе со шкалой
+    if (this.todayLine) {
+      this.todayLine.nativeElement.style.transform = `translateX(${x}px)`;
+    }
   }
 
   private toUtcDay(d: Date): number {
@@ -299,7 +315,7 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
   offset(task: TaskFlatNode): number {
     if (this.view === 'day') {
       const days = this.diffDays(task.start, this.projectStart);
-      return days * (this.dayWidth + this.borderWidth);
+      return days * (this.dayWidth);
     }
 
     // week view
@@ -313,14 +329,14 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     const dayOffsetInWeek =
       this.diffDays(task.start, taskWeekStart) / 7;
 
-    return (weeksFromStart + dayOffsetInWeek) * this.weekWidth;
+    return (weeksFromStart + dayOffsetInWeek) * (this.weekWidth);
   }
 
   width(task: TaskFlatNode): number {
     if (this.view === 'day') {
       const days =
         this.diffDays(task.end, task.start) + 1;
-      return days * (this.dayWidth + this.borderWidth);
+      return days * (this.dayWidth);
     }
 
     // week view
@@ -329,7 +345,7 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
     const weeks = durationDays / 7;
 
-    return Math.max((this.weekWidth + this.borderWidth) * 0.3, weeks * (this.weekWidth + this.borderWidth));
+    return Math.max((this.weekWidth) * 0.3, weeks * (this.weekWidth));
   }
 
   startOfDay(d: Date): Date {
@@ -344,52 +360,103 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     return date;
   }
 
+  private startOfYear(d: Date): Date {
+    return new Date(d.getFullYear(), 0, 1);
+  }
+
+  private startOfNextYear(d: Date): Date {
+    return new Date(d.getFullYear() + 1, 0, 1);
+  }
+
+  private applyProjectRangeFromData() {
+    const today = this.startOfDay(this.today);
+
+    const all: TaskNode[] = [];
+    const walk = (nodes: TaskNode[]) => {
+      for (const n of nodes) {
+        all.push(n);
+        if (n.children?.length) walk(n.children);
+      }
+    };
+    walk(this.EXAMPLE_DATA);
+
+    const dates: Date[] = [today];
+    for (const t of all) {
+      if (t.start) dates.push(this.startOfDay(t.start));
+      if (t.end) dates.push(this.startOfDay(t.end));
+    }
+
+    let min = dates[0];
+    let max = dates[0];
+    for (const d of dates) {
+      if (d < min) min = d;
+      if (d > max) max = d;
+    }
+
+    // расширяем до границ года для красивой шкалы
+    this.projectStart = this.startOfYear(min);
+    this.projectEnd = this.startOfNextYear(max);
+
+    this.updateTodayOffset();
+  }
+
 
   updateTodayOffset() {
     const msPerDay = 86400000;
 
     const today = this.startOfDay(this.today);
     const start = this.startOfDay(this.projectStart);
-    const end   = this.startOfDay(this.projectEnd);
+    const end = this.startOfDay(this.projectEnd);
 
-    if (today < start) {
+    if (today <= start) {
       this.todayOffset = 0;
       return;
     }
 
-    if (today > end) {
+    if (today >= end) {
       this.todayOffset =
         this.view === 'day'
-          ? ((end.getTime() - start.getTime()) / msPerDay) * this.dayWidth
-          : ((end.getTime() - start.getTime()) / (msPerDay * 7)) * this.weekWidth;
+          ? ((end.getTime() - start.getTime()) / msPerDay) * (this.dayWidth)
+          : ((end.getTime() - start.getTime()) / (msPerDay * 7)) * (this.weekWidth);
       return;
     }
 
     if (this.view === 'day') {
       const days = (today.getTime() - start.getTime()) / msPerDay;
-      this.todayOffset = days * (this.dayWidth + this.borderWidth) + this.dayWidth / 2;
+      this.todayOffset = days * (this.dayWidth) + this.dayWidth / 2;
     } else {
       const weeks =
-        (this.startOfWeek(today).getTime() -
-          this.startOfWeek(start).getTime()) /
-        (msPerDay * 7);
-      this.todayOffset = weeks * (this.weekWidth + this.borderWidth) + this.weekWidth / 2;
+        (this.startOfWeek(today).getTime() - this.startOfWeek(start).getTime()) / (msPerDay * 7);
+      this.todayOffset = weeks * (this.weekWidth) + this.weekWidth / 2;
     }
   }
 
-  scrollToToday(center = true) {
+
+  private get stepPx(): number {
+    return this.view === 'day'
+      ? (this.dayWidth)
+      : (this.weekWidth);
+  }
+
+  scrollToToday(align: 'center' | 'start' = 'center') {
     if (!this.xScroll) return;
 
     const el = this.xScroll.nativeElement;
     const rt = this.rightArea?.nativeElement;
+    if (!rt) return;
 
     if (el.scrollWidth <= rt.clientWidth) return;
 
     const viewport = rt.clientWidth;
 
+    // todayOffset у нас в центре клетки → чтобы показать клетку с today в начале,
+    // смещаемся на половину шага влево и добавляем небольшой отступ
+    const leftPadding = 8; // можно 0/8/16 как нравится
+
     let target =
-      this.todayOffset -
-      (center ? viewport / 2 : viewport * 0.3);
+      align === 'start'
+        ? (this.todayOffset - this.stepPx / 2 - leftPadding)
+        : (this.todayOffset - viewport / 2);
 
     target = Math.max(0, Math.min(target, el.scrollWidth - viewport));
 
@@ -403,7 +470,7 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
       (this.projectEnd.getTime() - this.projectStart.getTime()) / 86400000;
 
     return this.view === 'day'
-      ? days * this.dayWidth
-      : (days / 7) * this.weekWidth;
+      ? days * (this.dayWidth)
+      : (days / 7) * (this.weekWidth);
   }
 }

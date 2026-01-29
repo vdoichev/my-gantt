@@ -68,8 +68,15 @@
 .table-pane, .gantt-pane {
   height: auto; /* под контент */
   width: 100%;
-  overflow-x: auto;
   overflow-y: hidden;
+}
+
+.table-pane {
+  overflow-x: auto;
+}
+
+.gantt-pane {
+  overflow-x: hidden;
 }
 
 .mat-row {
