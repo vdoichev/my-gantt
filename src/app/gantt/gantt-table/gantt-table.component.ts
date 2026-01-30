@@ -214,7 +214,6 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
     this.updateTableData();
     this.updateTodayOffset();
-    // ранний вызов удалён — прокрутка должна запускаться после рендеринга (ngAfterViewInit)
   }
 
   @ViewChild(GanttHeaderComponent, { read: ElementRef })

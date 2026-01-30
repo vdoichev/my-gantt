@@ -26,7 +26,7 @@
                 @if (node.expandable) {
                   <button
                     mat-icon-button
-                    (click)="treeControl.toggle(node)"
+                    (click)="treeControl.toggle(node);onGanttScroll(xScroll.scrollLeft)"
                   >
                     <mat-icon>
                       {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}

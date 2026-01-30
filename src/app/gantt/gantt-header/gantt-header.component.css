@@ -3,10 +3,6 @@
   background: #fff;
 }
 
-.gantt-header-scroll {
-  /*overflow-x: auto;*/
-}
-
 .months-row {
   display: flex;
   height: 32px;
@@ -36,4 +32,18 @@
   font-size: 12px;
   border-right: 1px solid #eee;
   box-sizing: border-box; /* ✅ важно */
+}
+
+/* ---------- тижневі сектори в режимі day ---------- */
+
+/* вихідні дні (сб/нд) */
+.scale-cell.weekend-day {
+  background: #ffecec;        /* легкий червоний/рожевий фон */
+  color: #c62828;             /* трохи темніший текст */
+}
+
+/* початок тижня: виділяємо товстою лівою межею,
+   щоб було відчуття "сектора" як у Jira */
+.scale-cell.week-start {
+  border-left: 2px solid #888;
 }

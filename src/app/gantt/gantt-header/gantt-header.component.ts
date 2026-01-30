@@ -4,6 +4,9 @@ export interface ScaleCell {
   id: number;
   label: string;
   width: number;
+  date?: Date;
+  isWeekend?: boolean;
+  isWeekStart?: boolean;
 }
 
 export interface MonthCell {
@@ -37,24 +40,35 @@ export class GanttHeaderComponent {
     const cur = new Date(this.projectStart);
 
     if (this.view === 'day') {
-      let index = 0
+      let index = 0;
       while (cur <= this.projectEnd) {
+        const dayOfWeek = cur.getDay(); // 0 = Sun, 6 = Sat
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        const isWeekStart = dayOfWeek === 1; // понеділок — початок тижня
+
         res.push({
           id: index++,
           label: cur.getDate().toString(),
-          width: this.dayWidth
+          width: this.dayWidth,
+          date: new Date(cur),
+          isWeekend,
+          isWeekStart
         });
+
         cur.setDate(cur.getDate() + 1);
       }
     }
 
     if (this.view === 'week') {
-      let index = 0
+      let index = 0;
       while (cur <= this.projectEnd) {
         res.push({
           id: index++,
           label: `W${this.getWeek(cur)}`,
-          width: this.weekWidth
+          width: this.weekWidth,
+          date: new Date(cur),
+          isWeekend: false,
+          isWeekStart: true
         });
         cur.setDate(cur.getDate() + 7);
       }
