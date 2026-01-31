@@ -74,7 +74,7 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
   view: 'day' | 'week' = 'day';
 
-  dayWidth = 32;
+  dayWidth = 52;
   weekWidth = 140;
 
   today = new Date();
