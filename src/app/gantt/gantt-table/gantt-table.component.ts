@@ -210,6 +210,10 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
     this.treeControl.expansionModel.changed.subscribe(() => {
       this.updateTableData();
+      requestAnimationFrame(() => {
+        const currentLeft = this.xScroll?.nativeElement?.scrollLeft ?? 0;
+        this.onGanttScroll(currentLeft);
+      });
     });
 
     this.updateTableData();
@@ -243,6 +247,13 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     this.leftRows.forEach(r =>
       this.ro.observe(r.nativeElement)
     );
+
+    this.timelines.changes.subscribe(() => {
+      requestAnimationFrame(() => {
+        const currentLeft = this.xScroll?.nativeElement?.scrollLeft ?? 0;
+        this.onGanttScroll(currentLeft);
+      });
+    });
 
     this.updateTodayOffset();
 
