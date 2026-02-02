@@ -24,6 +24,7 @@ export interface TaskNode {
   priority: string;
   start: Date;
   end: Date;
+  childrenDate?: Date[];
   children?: TaskNode[];
 }
 
@@ -45,6 +46,16 @@ interface TimelineDayCell {
   width: number;
   isWeekend: boolean;
   isWeekStart: boolean;
+}
+
+type ParentMarkerKind = 'start' | 'end';
+
+interface ParentMarker {
+  id: string;
+  date: Date;
+  dayIndex: number;
+  title: string;
+  kind: ParentMarkerKind;
 }
 
 @Component({
@@ -83,6 +94,10 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
   today = new Date();
   todayOffset = 0;
 
+  private dayIndexForDate(d: Date): number {
+    return this.diffDays(this.startOfDay(d), this.projectStart);
+  }
+
   projectStart = new Date(2026, 0, 1);
   projectEnd   = new Date(2027, 0, 1);
 
@@ -103,8 +118,16 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
       priority: '',
       start: new Date('2026-01-02'),
       end: new Date('2026-01-10'),
+      childrenDate: [],
       children: [
-        { id: 21, name: 'LADY JAMILA, 9316983, Балкер', owner: '110', status: 'In Progress', priority: 'High', start: new Date('2026-01-02'), end: new Date('2026-01-05') },
+        {
+          id: 21,
+          name: 'LADY JAMILA, 9316983, Балкер',
+          owner: '110',
+          status: 'In Progress',
+          priority: 'High',
+          start: new Date('2026-01-02'),
+          end: new Date('2026-01-05') },
         { id: 22, name: 'HIGHLAND-A, 9194452, Суховантаж', owner: '78', status: 'In Progress', priority: 'High', start: new Date('2026-01-07'), end: new Date('2026-01-10') },
       ]
     },
@@ -116,11 +139,14 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
       priority: '',
       start: new Date('2026-01-08'),
       end: new Date('2026-02-05'),
+      childrenDate: [],
       children: [
         { id: 31, name: 'KAVO ALKYON, 9291121, Балкер', owner: '300', status: 'Open', priority: 'Medium', start: new Date('2026-01-08'), end: new Date('2026-01-15') },
       ]
     }
   ];
+
+  private readonly nodeById = new Map<number, TaskNode>();
 
   private _transformer = (node: TaskNode, level: number) => {
     return {
@@ -196,6 +222,8 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
   ngOnInit(): void {
     this.dataSource.data = this.EXAMPLE_DATA;
+    this.indexNodesById();
+
     this.applyProjectRangeFromData();
     this.buildParentMap();
 
@@ -209,6 +237,71 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
     this.updateTableData();
     this.updateTodayOffset();
+  }
+
+  private indexNodesById() {
+    this.nodeById.clear();
+
+    const walk = (nodes: TaskNode[]) => {
+      for (const n of nodes) {
+        this.nodeById.set(n.id, n);
+        if (n.children?.length) walk(n.children);
+      }
+    };
+
+    walk(this.EXAMPLE_DATA);
+  }
+
+  private getTreeNode(flat: TaskFlatNode): TaskNode | undefined {
+    return this.nodeById.get(flat.id);
+  }
+
+  private formatDate(d: Date): string {
+    // компактно, без локалей (чтобы не прыгало)
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  isParentRow(node: TaskFlatNode): boolean {
+    return node.expandable;
+  }
+
+  parentMarkers(node: TaskFlatNode): ParentMarker[] {
+    const treeNode = this.getTreeNode(node);
+    const children = treeNode?.children ?? [];
+
+    const res: ParentMarker[] = [];
+
+    for (const ch of children) {
+      if (ch.start) {
+        const date = this.startOfDay(ch.start);
+        const dayIndex = this.dayIndexForDate(date);
+        res.push({
+          id: `${node.id}:${ch.id}:start:${this.toUtcDay(date)}`,
+          date,
+          dayIndex,
+          kind: 'start',
+          title: `${ch.name}\nStart: ${this.formatDate(date)}`,
+        });
+      }
+
+      if (ch.end) {
+        const date = this.startOfDay(ch.end);
+        const dayIndex = this.dayIndexForDate(date);
+        res.push({
+          id: `${node.id}:${ch.id}:end:${this.toUtcDay(date)}`,
+          date,
+          dayIndex,
+          kind: 'end',
+          title: `${ch.name}\nEnd: ${this.formatDate(date)}`,
+        });
+      }
+    }
+
+    res.sort((a, b) => a.dayIndex - b.dayIndex || (a.kind === 'start' ? -1 : 1));
+    return res;
   }
 
   @ViewChild(GanttHeaderComponent, { read: ElementRef })
@@ -368,7 +461,6 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     this.updateTodayOffset();
   }
 
-
   updateTodayOffset() {
     const msPerDay = 86400000;
 
@@ -389,7 +481,6 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     const days = (today.getTime() - start.getTime()) / msPerDay;
     this.todayOffset = days * (this.dayWidth) + this.dayWidth / 2;
   }
-
 
   private get stepPx(): number {
     return (this.dayWidth)

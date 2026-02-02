@@ -59,6 +59,83 @@
   z-index: 1;
 }
 
+/* точки на родителе */
+.parent-dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background: #3f51b5;
+  border-radius: 50%;
+  z-index: 2;
+  pointer-events: auto; /* чтобы работал hover/title */
+}
+
+.parent-dot--start {
+  box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.20);
+}
+
+.parent-dot--end {
+  background: #2e7d32; /* можно оставить синим, но так читается "конец" */
+  box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.20);
+}
+
+.parent-dot:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* прямоугольник на всю клетку (1 день) для родителя */
+.parent-day {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(63, 81, 181, 0.35);
+  z-index: 2;
+  pointer-events: auto; /* hover/title */
+}
+
+/* если нужно различать start/end визуально — можно оставить так */
+.parent-day--start {
+  background: rgba(63, 81, 181, 0.35);
+}
+
+.parent-day--end {
+  background: rgba(63, 81, 181, 0.55);
+}
+
+.parent-day:hover {
+  filter: brightness(1.05);
+  outline: 1px solid rgba(63, 81, 181, 0.8);
+}
+
+/* 40x40 маркер, по вертикали как bar (центр строки) */
+.parent-marker {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 4px; /* как у .bar */
+  z-index: 2;
+  pointer-events: auto; /* hover/title */
+}
+
+/* плотные цвета */
+.parent-marker--start {
+  background: #3f51b5; /* синий */
+}
+
+.parent-marker--end {
+  background: #2e7d32; /* зелёный */
+}
+
+.parent-marker:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
 .gantt-footer {
   height: 16px;
   padding: 0;
