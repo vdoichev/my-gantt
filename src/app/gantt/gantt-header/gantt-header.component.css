@@ -1,49 +1,41 @@
 :host {
   display: block;
-  background: #fff;
 }
 
 .months-row {
   display: flex;
   height: 32px;
-  background: #f5f5f5;
-  border-bottom: 1px solid #ddd;
 }
 
 .scale-row {
   display: flex;
   height: 32px;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
 }
 
 .month-cell {
   text-align: center;
-  font-weight: 600;
-  line-height: 32px;
-  border-right: 1px solid #eee;
   white-space: nowrap;
-  box-sizing: border-box; /* ✅ важно */
+  box-sizing: border-box;
 }
 
 .scale-cell {
   text-align: center;
   line-height: 32px;
   font-size: 12px;
-  border-right: 1px solid #eee;
-  box-sizing: border-box; /* ✅ важно */
+  box-sizing: border-box;
 }
 
-/* ---------- тижневі сектори в режимі day ---------- */
+/* ---------- тижневі сектори для обох рядів ---------- */
 
 /* вихідні дні (сб/нд) */
+.month-cell.weekend-day,
 .scale-cell.weekend-day {
   background: #ffecec;        /* легкий червоний/рожевий фон */
   color: #c62828;             /* трохи темніший текст */
 }
 
-/* початок тижня: виділяємо товстою лівою межею,
-   щоб було відчуття "сектора" як у Jira */
+/* початок тижня: вертикальний розділювач */
+.month-cell.week-start,
 .scale-cell.week-start {
-  border-left: 2px solid #888;
+  border-left: 1px solid #888;
 }

@@ -1,13 +1,15 @@
 <div class="gantt-header-scroll" #scroll>
 
   <div class="months-row">
-    <!-- MONTHS -->
+    <!-- WEEKED MONTH LABELS, PER DAY -->
     @for (m of months;track m.id){
       <div
         class="month-cell"
         [style.width.px]="m.width"
+        [class.weekend-day]="m.isWeekend"
+        [class.week-start]="m.isWeekStart"
       >
-        {{ m.label }}
+        <span style="margin-left: 8px">{{ m.isWeekStart ? m.label : '' }}</span>
       </div>
     }
   </div>

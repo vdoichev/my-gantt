@@ -13,6 +13,8 @@ export interface MonthCell {
   id: number;
   label: string;
   width: number;
+  isWeekend?: boolean;
+  isWeekStart?: boolean;
 }
 
 @Component({
@@ -26,13 +28,13 @@ export class GanttHeaderComponent {
   @Input() projectStart!: Date;
   @Input() projectEnd!: Date;
 
-  @Input() dayWidth = 32;
+  @Input() dayWidth = 52;
   @Input() weekWidth = 140;
 
   @ViewChild('scroll', { static: true })
   scroll!: ElementRef<HTMLDivElement>;
 
-  /* ---------- SCALE (days ) ---------- */
+  /* ---------- SCALE (days) ---------- */
 
   get scale(): ScaleCell[] {
     const res: ScaleCell[] = [];
@@ -59,40 +61,56 @@ export class GanttHeaderComponent {
     return res;
   }
 
-  /* ---------- MONTHS ---------- */
+  /* ---------- MONTHS (per-day cells, згруповані по тижнях) ---------- */
 
   get months(): MonthCell[] {
     const res: MonthCell[] = [];
     const cur = new Date(this.projectStart);
 
-    let m = cur.getMonth();
-    let y = cur.getFullYear();
-    let width = 0;
-
-    const unit = this.dayWidth
-    const step = 1;
-    let index = 0
+    let index = 0;
     while (cur <= this.projectEnd) {
-      if (cur.getMonth() !== m || cur.getFullYear() !== y) {
-        res.push({
-          id: index++,
-          label: this.monthLabel(m, y),
-          width
-        });
-        m = cur.getMonth();
-        y = cur.getFullYear();
-        width = 0;
+      const currentDate = new Date(cur);
+
+      // визначаємо тиждень для цього дня
+      const weekStart = new Date(currentDate);
+      const d = weekStart.getDay() || 7;       // 1..7, де 1 = понеділок, 7 = неділя
+      weekStart.setDate(weekStart.getDate() - d + 1);
+      weekStart.setHours(0, 0, 0, 0);
+
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      weekEnd.setHours(0, 0, 0, 0);
+
+      // тиждень може виходити за межі проекту, але для підпису це не критично
+
+      const startMonth = weekStart.getMonth();
+      const startYear = weekStart.getFullYear();
+      const endMonth = weekEnd.getMonth();
+      const endYear = weekEnd.getFullYear();
+
+      // якщо тиждень повністю в одному місяці → повна назва
+      // якщо перетинає межу → короткі назви "янв – фев"
+      let label: string;
+      if (startMonth === endMonth && startYear === endYear) {
+        label = this.monthLabel(startMonth, startYear);
+      } else {
+        label = `${this.monthLabelShort(startMonth, startYear)} – ${this.monthLabelShort(endMonth, endYear)}`;
       }
 
-      width += unit;
-      cur.setDate(cur.getDate() + step);
-    }
+      const dayOfWeek = currentDate.getDay(); // 0 = Sun, 6 = Sat
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const isWeekStart = dayOfWeek === 1; // понеділок — початок тижня
 
-    res.push({
-      id: index++,
-      label: this.monthLabel(m, y),
-      width
-    });
+      res.push({
+        id: index++,
+        label,
+        width: this.dayWidth,
+        isWeekend,
+        isWeekStart
+      });
+
+      cur.setDate(cur.getDate() + 1);
+    }
 
     return res;
   }
@@ -101,6 +119,12 @@ export class GanttHeaderComponent {
     return new Intl.DateTimeFormat('ru', {
       month: 'long',
       year: 'numeric'
+    }).format(new Date(y, m, 1));
+  }
+
+  private monthLabelShort(m: number, y: number): string {
+    return new Intl.DateTimeFormat('ru', {
+      month: 'short'
     }).format(new Date(y, m, 1));
   }
 }

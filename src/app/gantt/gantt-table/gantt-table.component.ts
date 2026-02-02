@@ -320,14 +320,6 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     return new Date(d.getFullYear(), d.getMonth(), d.getDate());
   }
 
-  startOfWeek(d: Date): Date {
-    const date = new Date(d);
-    const day = date.getDay() || 7;
-    date.setDate(date.getDate() - day + 1);
-    date.setHours(0, 0, 0, 0);
-    return date;
-  }
-
   private startOfYear(d: Date): Date {
     return new Date(d.getFullYear(), 0, 1);
   }
