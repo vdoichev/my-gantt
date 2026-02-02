@@ -116,8 +116,8 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
       owner: '125',
       status: '',
       priority: '',
-      start: new Date('2026-01-02'),
-      end: new Date('2026-01-10'),
+      start: new Date('2026-01-25'),
+      end: new Date('2026-02-10'),
       childrenDate: [],
       children: [
         {
@@ -126,9 +126,9 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
           owner: '110',
           status: 'In Progress',
           priority: 'High',
-          start: new Date('2026-01-02'),
-          end: new Date('2026-01-05') },
-        { id: 22, name: 'HIGHLAND-A, 9194452, Суховантаж', owner: '78', status: 'In Progress', priority: 'High', start: new Date('2026-01-07'), end: new Date('2026-01-10') },
+          start: new Date('2026-01-25'),
+          end: new Date('2026-02-05') },
+        { id: 22, name: 'HIGHLAND-A, 9194452, Суховантаж', owner: '78', status: 'In Progress', priority: 'High', start: new Date('2026-02-07'), end: new Date('2026-02-10') },
       ]
     },
     {
@@ -137,11 +137,11 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
       owner: '225,7',
       status: '',
       priority: '',
-      start: new Date('2026-01-08'),
-      end: new Date('2026-02-05'),
+      start: new Date('2026-02-08'),
+      end: new Date('2026-03-05'),
       childrenDate: [],
       children: [
-        { id: 31, name: 'KAVO ALKYON, 9291121, Балкер', owner: '300', status: 'Open', priority: 'Medium', start: new Date('2026-01-08'), end: new Date('2026-01-15') },
+        { id: 31, name: 'KAVO ALKYON, 9291121, Балкер', owner: '300', status: 'Open', priority: 'Medium', start: new Date('2026-02-08'), end: new Date('2026-02-15') },
       ]
     }
   ];
