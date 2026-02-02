@@ -26,52 +26,34 @@ export class GanttHeaderComponent {
   @Input() projectStart!: Date;
   @Input() projectEnd!: Date;
 
-  @Input() view: 'day' | 'week' = 'day';
   @Input() dayWidth = 32;
   @Input() weekWidth = 140;
 
   @ViewChild('scroll', { static: true })
   scroll!: ElementRef<HTMLDivElement>;
 
-  /* ---------- SCALE (days / weeks) ---------- */
+  /* ---------- SCALE (days ) ---------- */
 
   get scale(): ScaleCell[] {
     const res: ScaleCell[] = [];
     const cur = new Date(this.projectStart);
 
-    if (this.view === 'day') {
-      let index = 0;
-      while (cur <= this.projectEnd) {
-        const dayOfWeek = cur.getDay(); // 0 = Sun, 6 = Sat
-        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-        const isWeekStart = dayOfWeek === 1; // понеділок — початок тижня
+    let index = 0;
+    while (cur <= this.projectEnd) {
+      const dayOfWeek = cur.getDay(); // 0 = Sun, 6 = Sat
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const isWeekStart = dayOfWeek === 1; // понеділок — початок тижня
 
-        res.push({
-          id: index++,
-          label: cur.getDate().toString(),
-          width: this.dayWidth,
-          date: new Date(cur),
-          isWeekend,
-          isWeekStart
-        });
+      res.push({
+        id: index++,
+        label: cur.getDate().toString(),
+        width: this.dayWidth,
+        date: new Date(cur),
+        isWeekend,
+        isWeekStart
+      });
 
-        cur.setDate(cur.getDate() + 1);
-      }
-    }
-
-    if (this.view === 'week') {
-      let index = 0;
-      while (cur <= this.projectEnd) {
-        res.push({
-          id: index++,
-          label: `W${this.getWeek(cur)}`,
-          width: this.weekWidth,
-          date: new Date(cur),
-          isWeekend: false,
-          isWeekStart: true
-        });
-        cur.setDate(cur.getDate() + 7);
-      }
+      cur.setDate(cur.getDate() + 1);
     }
 
     return res;
@@ -87,8 +69,8 @@ export class GanttHeaderComponent {
     let y = cur.getFullYear();
     let width = 0;
 
-    const unit = this.view === 'day' ? this.dayWidth : this.weekWidth;
-    const step = this.view === 'day' ? 1 : 7;
+    const unit = this.dayWidth
+    const step = 1;
     let index = 0
     while (cur <= this.projectEnd) {
       if (cur.getMonth() !== m || cur.getFullYear() !== y) {
@@ -120,13 +102,5 @@ export class GanttHeaderComponent {
       month: 'long',
       year: 'numeric'
     }).format(new Date(y, m, 1));
-  }
-
-  private getWeek(date: Date): number {
-    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    const day = d.getUTCDay() || 7;
-    d.setUTCDate(d.getUTCDate() + 4 - day);
-    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
   }
 }

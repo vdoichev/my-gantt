@@ -1,7 +1,7 @@
-<mat-button-toggle-group [(ngModel)]="viewMode">
-  <mat-button-toggle value="day">Day</mat-button-toggle>
-  <mat-button-toggle value="week">Week</mat-button-toggle>
-</mat-button-toggle-group>
+<!--<mat-button-toggle-group [(ngModel)]="viewMode">-->
+<!--  <mat-button-toggle value="day">Day</mat-button-toggle>-->
+<!--  <mat-button-toggle value="week">Week</mat-button-toggle>-->
+<!--</mat-button-toggle-group>-->
 
 <div class="vertical-scroll">
   <as-split direction="horizontal"
@@ -84,7 +84,6 @@
               <app-gantt-header
                 [projectStart]="projectStart"
                 [projectEnd]="projectEnd"
-                [view]="view"
                 [dayWidth]="dayWidth"
                 [weekWidth]="weekWidth"
               ></app-gantt-header>

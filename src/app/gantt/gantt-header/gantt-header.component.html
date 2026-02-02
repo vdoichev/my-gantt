@@ -13,13 +13,13 @@
   </div>
 
   <div class="scale-row">
-    <!-- DAYS / WEEKS -->
+    <!-- DAYS -->
     @for (s of scale;track s.id){
       <div
         class="scale-cell"
         [style.width.px]="s.width"
-        [class.weekend-day]="view === 'day' && s.isWeekend"
-        [class.week-start]="view === 'day' && s.isWeekStart"
+        [class.weekend-day]="s.isWeekend"
+        [class.week-start]="s.isWeekStart"
       >
         {{ s.label }}
       </div>

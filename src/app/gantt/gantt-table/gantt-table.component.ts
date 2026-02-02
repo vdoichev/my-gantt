@@ -8,7 +8,6 @@ import {
   MatRow, MatRowDef,
   MatTable, MatTableDataSource
 } from '@angular/material/table';
-import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {FormsModule} from '@angular/forms';
 import {GanttHeaderComponent} from '../gantt-header/gantt-header.component';
 import {SplitAreaComponent, SplitComponent} from 'angular-split';
@@ -53,9 +52,7 @@ export interface TaskFlatNode {
     MatCellDef,
     MatHeaderRowDef,
     MatRowDef,
-    MatButtonToggleGroup,
     FormsModule,
-    MatButtonToggle,
     GanttHeaderComponent,
     MatFooterCell,
     MatFooterCellDef,
@@ -71,8 +68,6 @@ export interface TaskFlatNode {
   styleUrl: './gantt-table.component.css',
 })
 export class GanttTableComponent implements OnInit, AfterViewInit{
-
-  view: 'day' | 'week' = 'day';
 
   dayWidth = 52;
   weekWidth = 140;
@@ -90,18 +85,6 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
   private scrollTry = 0;
   private readonly maxScrollTries = 60; // ~1 сек при rAF
-
-  get viewMode(): 'day' | 'week' {
-    return this.view;
-  }
-  set viewMode(v: 'day' | 'week') {
-    this.view = v;
-    this.updateTodayOffset();
-
-    requestAnimationFrame(() => {
-      this.scrollToToday('start');
-    });
-  }
 
   EXAMPLE_DATA: TaskNode[] = [
     {
@@ -323,39 +306,14 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
   }
 
   offset(task: TaskFlatNode): number {
-    if (this.view === 'day') {
-      const days = this.diffDays(task.start, this.projectStart);
-      return days * (this.dayWidth);
-    }
-
-    // week view
-    const startWeek = this.startOfWeek(this.projectStart);
-    const taskWeekStart = this.startOfWeek(task.start);
-
-    const weeksFromStart =
-      this.diffDays(taskWeekStart, startWeek) / 7;
-
-    // fractional offset внутри недели
-    const dayOffsetInWeek =
-      this.diffDays(task.start, taskWeekStart) / 7;
-
-    return (weeksFromStart + dayOffsetInWeek) * (this.weekWidth);
+    const days = this.diffDays(task.start, this.projectStart);
+    return days * (this.dayWidth);
   }
 
   width(task: TaskFlatNode): number {
-    if (this.view === 'day') {
-      const days =
-        this.diffDays(task.end, task.start) + 1;
-      return days * (this.dayWidth);
-    }
-
-    // week view
-    const durationDays =
+    const days =
       this.diffDays(task.end, task.start) + 1;
-
-    const weeks = durationDays / 7;
-
-    return Math.max((this.weekWidth) * 0.3, weeks * (this.weekWidth));
+    return days * (this.dayWidth);
   }
 
   startOfDay(d: Date): Date {
@@ -424,28 +382,17 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     }
 
     if (today >= end) {
-      this.todayOffset =
-        this.view === 'day'
-          ? ((end.getTime() - start.getTime()) / msPerDay) * (this.dayWidth)
-          : ((end.getTime() - start.getTime()) / (msPerDay * 7)) * (this.weekWidth);
+      this.todayOffset = ((end.getTime() - start.getTime()) / msPerDay) * (this.dayWidth);
       return;
     }
 
-    if (this.view === 'day') {
-      const days = (today.getTime() - start.getTime()) / msPerDay;
-      this.todayOffset = days * (this.dayWidth) + this.dayWidth / 2;
-    } else {
-      const weeks =
-        (this.startOfWeek(today).getTime() - this.startOfWeek(start).getTime()) / (msPerDay * 7);
-      this.todayOffset = weeks * (this.weekWidth) + this.weekWidth / 2;
-    }
+    const days = (today.getTime() - start.getTime()) / msPerDay;
+    this.todayOffset = days * (this.dayWidth) + this.dayWidth / 2;
   }
 
 
   private get stepPx(): number {
-    return this.view === 'day'
-      ? (this.dayWidth)
-      : (this.weekWidth);
+    return (this.dayWidth)
   }
 
   scrollToToday(align: 'center' | 'start' = 'center') {
@@ -479,8 +426,6 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     const days =
       (this.projectEnd.getTime() - this.projectStart.getTime()) / 86400000;
 
-    return this.view === 'day'
-      ? days * (this.dayWidth)
-      : (days / 7) * (this.weekWidth);
+    return days * (this.dayWidth)
   }
 }
