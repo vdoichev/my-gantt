@@ -39,6 +39,14 @@ export interface TaskFlatNode {
   expandable: boolean;
 }
 
+interface TimelineDayCell {
+  id: number;
+  left: number;
+  width: number;
+  isWeekend: boolean;
+  isWeekStart: boolean;
+}
+
 @Component({
   selector: 'app-gantt',
   imports: [
@@ -413,11 +421,36 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     this.onGanttScroll(target);
   }
 
-
   get ganttContentWidth(): number {
     const days =
       (this.projectEnd.getTime() - this.projectStart.getTime()) / 86400000;
 
     return days * (this.dayWidth)
+  }
+
+  /** Сітка по днях для кожного рядка Gantt (фон під барами) */
+  get timelineDays(): TimelineDayCell[] {
+    const res: TimelineDayCell[] = [];
+    const cur = new Date(this.projectStart);
+    let index = 0;
+
+    while (cur <= this.projectEnd) {
+      const dayOfWeek = cur.getDay(); // 0 = Sun, 6 = Sat
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const isWeekStart = dayOfWeek === 1; // понеділок
+
+      res.push({
+        id: index,
+        left: index * this.dayWidth,
+        width: this.dayWidth,
+        isWeekend,
+        isWeekStart
+      });
+
+      index++;
+      cur.setDate(cur.getDate() + 1);
+    }
+
+    return res;
   }
 }

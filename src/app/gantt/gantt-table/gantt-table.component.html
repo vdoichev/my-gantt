@@ -92,6 +92,18 @@
             <td mat-cell *matCellDef="let node" class="gantt-cell">
               <div class="timeline-wrapper">
                 <div class="timeline" #timeline>
+                  <!-- Фонова сітка по днях -->
+                  @for (d of timelineDays; track d.id) {
+                    <div
+                      class="timeline-day"
+                      [style.left.px]="d.left"
+                      [style.width.px]="d.width"
+                      [class.weekend-day]="d.isWeekend"
+                      [class.week-start]="d.isWeekStart"
+                    ></div>
+                  }
+
+                  <!-- Бар задачі -->
                   <div
                     class="bar"
                     [style.left.px]="offset(node)"
