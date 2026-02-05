@@ -18,13 +18,13 @@ export interface MonthCell {
 }
 
 @Component({
-  selector: 'app-gantt-header',
+  selector: 'app-port-call-gantt-calendar-header',
   imports: [],
-  templateUrl: './gantt-header.component.html',
-  styleUrl: './gantt-header.component.css',
+  templateUrl: './port-call-gantt-calendar-header.component.html',
+  styleUrl: './port-call-gantt-calendar-header.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GanttHeaderComponent {
+export class PortCallGanttCalendarHeaderComponent {
   @Input() projectStart!: Date;
   @Input() projectEnd!: Date;
 

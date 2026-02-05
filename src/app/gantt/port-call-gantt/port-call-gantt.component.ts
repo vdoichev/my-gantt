@@ -9,7 +9,7 @@ import {
   MatTable, MatTableDataSource
 } from '@angular/material/table';
 import {FormsModule} from '@angular/forms';
-import {GanttHeaderComponent} from '../gantt-header/gantt-header.component';
+import {PortCallGanttCalendarHeaderComponent} from '../port-call-gantt-calendar-header/port-call-gantt-calendar-header.component';
 import {SplitAreaComponent, SplitComponent} from 'angular-split';
 import {MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule} from '@angular/material/tree';
 import {FlatTreeControl} from '@angular/cdk/tree';
@@ -19,7 +19,7 @@ import {ParentMarker, TaskFlatNode, TaskNode, TimelineDayCell} from '../gantt-in
 import {EXAMPLE_DATA} from '../gant-data';
 
 @Component({
-  selector: 'app-gantt',
+  selector: 'app-port-call-gantt',
   imports: [
     MatTable,
     MatColumnDef,
@@ -32,7 +32,6 @@ import {EXAMPLE_DATA} from '../gant-data';
     MatHeaderRowDef,
     MatRowDef,
     FormsModule,
-    GanttHeaderComponent,
     MatFooterCell,
     MatFooterCellDef,
     MatFooterRow,
@@ -41,12 +40,13 @@ import {EXAMPLE_DATA} from '../gant-data';
     SplitAreaComponent,
     MatTreeModule,
     MatIconButton,
-    MatIcon
+    MatIcon,
+    PortCallGanttCalendarHeaderComponent
   ],
-  templateUrl: './gantt-table.component.html',
-  styleUrl: './gantt-table.component.css',
+  templateUrl: './port-call-gantt.component.html',
+  styleUrl: './port-call-gantt.component.css',
 })
-export class GanttTableComponent implements OnInit, AfterViewInit{
+export class PortCallGanttComponent implements OnInit, AfterViewInit{
 
   dayWidth = 52;
   weekWidth = 140;
@@ -230,7 +230,7 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
     return res;
   }
 
-  @ViewChild(GanttHeaderComponent, { read: ElementRef })
+  @ViewChild(PortCallGanttCalendarHeaderComponent, { read: ElementRef })
   headerEl!: ElementRef<HTMLElement>;
 
   @ViewChildren('timeline')

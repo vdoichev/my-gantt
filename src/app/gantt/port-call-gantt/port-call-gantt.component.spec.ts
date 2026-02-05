@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GanttTableComponent } from './gantt-table.component';
+import { PortCallGanttComponent } from './port-call-gantt.component';
 
 describe('Gantt', () => {
-  let component: GanttTableComponent;
-  let fixture: ComponentFixture<GanttTableComponent>;
+  let component: PortCallGanttComponent;
+  let fixture: ComponentFixture<PortCallGanttComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GanttTableComponent]
+      imports: [PortCallGanttComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(GanttTableComponent);
+    fixture = TestBed.createComponent(PortCallGanttComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
