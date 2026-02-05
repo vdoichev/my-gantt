@@ -104,23 +104,23 @@
                   }
 
                   @if (isParentRow(node)) {
-  <!-- Для родителя: квадраты 40x40 по датам детей -->
-  @for (m of parentMarkers(node); track m.id) {
-    <div
-      class="parent-marker"
-      [class.parent-marker--start]="m.kind === 'start'"
-      [class.parent-marker--end]="m.kind === 'end'"
-      [style.left.px]="m.dayIndex * dayWidth + (dayWidth / 2) - 12"
-      [attr.title]="m.title"
-    ></div>
-  }
-} @else {
-  <div
-    class="bar"
-    [style.left.px]="offset(node)"
-    [style.width.px]="width(node)">
-  </div>
-}
+                    <!-- Для родителя: квадраты 40x40 по датам детей -->
+                    @for (m of parentMarkers(node); track m.id) {
+                      <div
+                        class="parent-marker"
+                        [class.parent-marker--start]="m.kind === 'start'"
+                        [class.parent-marker--end]="m.kind === 'end'"
+                        [style.left.px]="m.dayIndex * dayWidth + (dayWidth / 2) - 12"
+                        [attr.title]="m.title"
+                      ></div>
+                    }
+                  } @else {
+                    <div
+                      class="bar"
+                      [style.left.px]="offset(node)"
+                      [style.width.px]="width(node)">
+                    </div>
+                  }
                 </div>
               </div>
             </td>

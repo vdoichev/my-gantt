@@ -15,48 +15,8 @@ import {MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule} from '@angular/m
 import {FlatTreeControl} from '@angular/cdk/tree';
 import {MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
-
-export interface TaskNode {
-  id: number;
-  name: string;
-  owner: string;
-  status: string;
-  priority: string;
-  start: Date;
-  end: Date;
-  childrenDate?: Date[];
-  children?: TaskNode[];
-}
-
-export interface TaskFlatNode {
-  id: number;
-  name: string;
-  owner: string;
-  status: string;
-  priority: string;
-  start: Date;
-  end: Date;
-  level: number;
-  expandable: boolean;
-}
-
-interface TimelineDayCell {
-  id: number;
-  left: number;
-  width: number;
-  isWeekend: boolean;
-  isWeekStart: boolean;
-}
-
-type ParentMarkerKind = 'start' | 'end';
-
-interface ParentMarker {
-  id: string;
-  date: Date;
-  dayIndex: number;
-  title: string;
-  kind: ParentMarkerKind;
-}
+import {ParentMarker, TaskFlatNode, TaskNode, TimelineDayCell} from '../gantt-interface';
+import {EXAMPLE_DATA} from '../gant-data';
 
 @Component({
   selector: 'app-gantt',
@@ -93,6 +53,7 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
 
   today = new Date();
   todayOffset = 0;
+  private EXAMPLE_DATA = EXAMPLE_DATA;
 
   private dayIndexForDate(d: Date): number {
     return this.diffDays(this.startOfDay(d), this.projectStart);
@@ -109,42 +70,7 @@ export class GanttTableComponent implements OnInit, AfterViewInit{
   private scrollTry = 0;
   private readonly maxScrollTries = 60; // ~1 сек при rAF
 
-  EXAMPLE_DATA: TaskNode[] = [
-    {
-      id: 1,
-      name: 'Причал № 1',
-      owner: '125',
-      status: '',
-      priority: '',
-      start: new Date('2026-01-25'),
-      end: new Date('2026-02-10'),
-      childrenDate: [],
-      children: [
-        {
-          id: 21,
-          name: 'LADY JAMILA, 9316983, Балкер',
-          owner: '110',
-          status: 'In Progress',
-          priority: 'High',
-          start: new Date('2026-01-25'),
-          end: new Date('2026-02-05') },
-        { id: 22, name: 'HIGHLAND-A, 9194452, Суховантаж', owner: '78', status: 'In Progress', priority: 'High', start: new Date('2026-02-07'), end: new Date('2026-02-10') },
-      ]
-    },
-    {
-      id: 2,
-      name: 'Причал № 34',
-      owner: '225,7',
-      status: '',
-      priority: '',
-      start: new Date('2026-02-08'),
-      end: new Date('2026-03-05'),
-      childrenDate: [],
-      children: [
-        { id: 31, name: 'KAVO ALKYON, 9291121, Балкер', owner: '300', status: 'Open', priority: 'Medium', start: new Date('2026-02-08'), end: new Date('2026-02-15') },
-      ]
-    }
-  ];
+
 
   private readonly nodeById = new Map<number, TaskNode>();
 
