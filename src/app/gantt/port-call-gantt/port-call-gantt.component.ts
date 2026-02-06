@@ -309,7 +309,7 @@ export class PortCallGanttComponent implements OnInit, AfterViewInit{
 
   onGanttScroll(left: number) {
     const x = -left;
-
+    console.log('scroll', x);
     this.headerEl.nativeElement.style.transform =
       `translateX(${x}px)`;
 
