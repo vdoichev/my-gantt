@@ -5,11 +5,13 @@
 .months-row {
   display: flex;
   height: 32px;
+  box-sizing: border-box;
 }
 
 .scale-row {
   display: flex;
   height: 32px;
+  box-sizing: border-box;
 }
 
 .month-cell {

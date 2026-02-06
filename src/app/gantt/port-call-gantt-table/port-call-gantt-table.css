@@ -1,17 +1,15 @@
-
-/* ✅ ДОДАЙТЕ: контейнер лівої таблиці має створювати горизонтальний скрол */
-.table-pane {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden; /* опційно: щоб не було зайвого y-скролу саме тут */
+.gantt-table {
+  width: max-content;   /* ⬅️ ВАЖНО */
+  table-layout: fixed;
 }
 
-/* ... existing code ... */
-
-.gantt-pane {
-  overflow-x: hidden;
+.gantt-table th {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 2;
 }
+
 .timeline-wrapper {
   overflow: hidden;
 }
@@ -129,46 +127,18 @@
 }
 
 .gantt-footer {
-  height: 0;
+  /*height: 16px;*/
   padding: 0;
 }
 
 .gantt-x-scroll {
+  height: 16px;
   overflow-x: auto;
-  overflow-y: hidden; /* важливо: не створюємо вертикальний скрол тут */
-  width: 100%;
 }
 
 .gantt-x-content {
-  position: relative;
-  display: inline-block;
-  width: var(--gantt-width);
-  max-width: var(--gantt-width);
-  overflow: hidden;
-}
-
-.gantt-x-content .gantt-table {
-  width: var(--gantt-width);
-  table-layout: fixed;
-}
-
-.gantt-x-content .gantt-header,
-.gantt-x-content .gantt-cell {
-  width: var(--gantt-width);
-  max-width: var(--gantt-width);
-}
-
-.gantt-x-content .timeline {
-  width: 100% !important;
-  min-width: 0 !important;
-  /* якщо десь залишився width: max-content — цей !important його переб’є */
-}
-
-.gantt-x-content app-port-call-gantt-calendar-header {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  overflow: hidden;
+  /*width: 3000px;*/
+  height: 1px;
 }
 
 .gantt-layout {
@@ -222,14 +192,17 @@
 
 .gantt-overlay {
   position: absolute;
-  inset: 0;
+  top: 60px;
+  bottom: 16px; /* footer */
+  left: 0;
+  right: 0;
   pointer-events: none;
   z-index: 10;
 }
 
 .today-line {
   position: absolute;
-  top: 60px;
+  top: 0;
   bottom: 0;
   width: 2px;
   background: rgba(25, 118, 210);

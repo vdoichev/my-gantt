@@ -8,135 +8,18 @@
              [gutterSize]="8">
     <as-split-area [size]="50" [minSize]="20">
       <div class="table-pane">
-        <table mat-table [dataSource]="tableDataSource" class="gantt-table">
-
-          <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef>ID</th>
-            <td mat-cell *matCellDef="let t">{{ t.id }}</td>
-            <td mat-footer-cell *matFooterCellDef></td>
-          </ng-container>
-
-          <ng-container matColumnDef="name" sticky>
-            <th mat-header-cell *matHeaderCellDef> Назва причала / судна</th>
-            <td mat-cell *matCellDef="let node">
-              <div
-                class="tree-cell"
-                [style.padding-left.px]="node.level * 40"
-              >
-                @if (node.expandable) {
-                  <button
-                    mat-icon-button
-                    (click)="treeControl.toggle(node);onGanttScroll(xScroll.scrollLeft)"
-                  >
-                    <mat-icon>
-                      {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
-                    </mat-icon>
-                  </button>
-                }
-                {{ node.name }}
-              </div>
-            </td>
-            <td mat-footer-cell *matFooterCellDef></td>
-          </ng-container>
-
-          <ng-container matColumnDef="owner">
-            <th mat-header-cell *matHeaderCellDef>Довжина</th>
-            <td mat-cell *matCellDef="let t">{{ t.owner }}</td>
-            <td mat-footer-cell *matFooterCellDef></td>
-          </ng-container>
-
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
-            <td mat-cell *matCellDef="let t">{{ t.status }}</td>
-            <td mat-footer-cell *matFooterCellDef></td>
-          </ng-container>
-
-          <ng-container matColumnDef="priority">
-            <th mat-header-cell *matHeaderCellDef>Priority</th>
-            <td mat-cell *matCellDef="let t">{{ t.priority }}</td>
-            <td mat-footer-cell *matFooterCellDef></td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="leftColumns" [style.height.px]="rowHeaderHeight"></tr>
-          <tr mat-row *matRowDef="let r; columns: leftColumns" #leftRow></tr>
-          <tr mat-footer-row *matFooterRowDef="leftColumns" [style.height.px]="16"></tr>
-
-        </table>
+        <app-port-call-gantt-table
+          [tableDataSource]="tableDataSource"
+          [treeControl]="treeControl"
+          [rowHeaderHeight]="rowHeaderHeight"
+          (hasGanttScroll)="onGanttScroll(xScroll.scrollLeft)"
+        />
       </div>
 
     </as-split-area>
 
     <as-split-area [size]="50" [minSize]="20">
       <div class="gantt-pane" #rightArea>
-        <div class="gantt-overlay">
-          <div
-            class="today-line"
-            #todayLine
-            [style.left.px]="todayOffset"
-          ></div>
-        </div>
-
-        <table mat-table [dataSource]="tableDataSource" class="gantt-table" #rightTable>
-          <!-- GANTT -->
-          <ng-container matColumnDef="gantt">
-
-            <th mat-header-cell *matHeaderCellDef class="gantt-header">
-              <app-port-call-gantt-calendar-header
-                [projectStart]="projectStart"
-                [projectEnd]="projectEnd"
-                [dayWidth]="dayWidth"
-                [weekWidth]="weekWidth"
-              ></app-port-call-gantt-calendar-header>
-            </th>
-
-            <td mat-cell *matCellDef="let node" class="gantt-cell">
-              <div class="timeline-wrapper">
-                <div class="timeline" #timeline>
-                  <!-- Фонова сітка по днях -->
-                  @for (d of timelineDays; track d.id) {
-                    <div
-                      class="timeline-day"
-                      [style.left.px]="d.left"
-                      [style.width.px]="d.width"
-                      [class.weekend-day]="d.isWeekend"
-                      [class.week-start]="d.isWeekStart"
-                    ></div>
-                  }
-
-                  @if (isParentRow(node)) {
-                    <!-- Для родителя: квадраты 40x40 по датам детей -->
-                    @for (m of parentMarkers(node); track m.id) {
-                      <div
-                        class="parent-marker"
-                        [class.parent-marker--start]="m.kind === 'start'"
-                        [class.parent-marker--end]="m.kind === 'end'"
-                        [style.left.px]="m.dayIndex * dayWidth + (dayWidth / 2) - 12"
-                        [attr.title]="m.title"
-                      ></div>
-                    }
-                  } @else {
-                    <div
-                      class="bar"
-                      [style.left.px]="offset(node)"
-                      [style.width.px]="width(node)">
-                    </div>
-                  }
-                </div>
-              </div>
-            </td>
-
-            <!-- FOOTER: ОДИН X-SCROLL -->
-            <td mat-footer-cell *matFooterCellDef class="gantt-footer">
-            </td>
-
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="rightColumns" [style.height.px]="rowHeaderHeight"></tr>
-          <tr mat-row *matRowDef="let row; let i = index; columns: ['gantt']"
-              [style.height.px]="rowHeights[i]"></tr>
-          <tr mat-footer-row *matFooterRowDef="rightColumns" [style.height.px]="16"></tr>
-
-        </table>
 
         <div
           class="gantt-x-scroll"
@@ -145,7 +28,80 @@
           <div
             class="gantt-x-content"
             [style.width.px]="ganttContentWidth"
-          ></div>
+            [style.--gantt-width]="ganttContentWidth"
+          >
+
+            <div class="gantt-overlay">
+              <div
+                class="today-line"
+                #todayLine
+                [style.left.px]="todayOffset"
+              ></div>
+            </div>
+
+            <table mat-table [dataSource]="tableDataSource">
+              <!-- GANTT -->
+              <ng-container matColumnDef="gantt">
+
+                <th mat-header-cell *matHeaderCellDef class="gantt-header">
+                  <app-port-call-gantt-calendar-header
+                    [projectStart]="projectStart"
+                    [projectEnd]="projectEnd"
+                    [dayWidth]="dayWidth"
+                    [weekWidth]="weekWidth"
+                  ></app-port-call-gantt-calendar-header>
+                </th>
+
+                <td mat-cell *matCellDef="let node" class="gantt-cell">
+                  <div class="timeline-wrapper">
+                    <div class="timeline" #timeline>
+                      <!-- Фонова сітка по днях -->
+                      @for (d of timelineDays; track d.id) {
+                        <div
+                          class="timeline-day"
+                          [style.left.px]="d.left"
+                          [style.width.px]="d.width"
+                          [class.weekend-day]="d.isWeekend"
+                          [class.week-start]="d.isWeekStart"
+                        ></div>
+                      }
+
+                      @if (isParentRow(node)) {
+                        <!-- Для родителя: квадраты 40x40 по датам детей -->
+                        @for (m of parentMarkers(node); track m.id) {
+                          <div
+                            class="parent-marker"
+                            [class.parent-marker--start]="m.kind === 'start'"
+                            [class.parent-marker--end]="m.kind === 'end'"
+                            [style.left.px]="m.dayIndex * dayWidth + (dayWidth / 2) - 12"
+                            [attr.title]="m.title"
+                          ></div>
+                        }
+                      } @else {
+                        <div
+                          class="bar"
+                          [style.left.px]="offset(node)"
+                          [style.width.px]="width(node)">
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </td>
+
+<!--                 FOOTER: ОДИН X-SCROLL-->
+<!--                <td mat-footer-cell *matFooterCellDef class="gantt-footer">-->
+<!--                </td>-->
+
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="rightColumns" [style.height.px]="rowHeaderHeight"></tr>
+              <tr mat-row *matRowDef="let row; let i = index; columns: ['gantt']"
+                  [style.height.px]="rowHeights[i]"></tr>
+<!--              <tr mat-footer-row *matFooterRowDef="rightColumns" [style.height.px]="16"></tr>-->
+
+            </table>
+
+          </div>
         </div>
 
       </div>

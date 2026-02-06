@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 import {
   MatCell, MatCellDef,
-  MatColumnDef, MatFooterCell, MatFooterCellDef, MatFooterRow, MatFooterRowDef,
+  MatColumnDef,
   MatHeaderCell,
   MatHeaderCellDef,
   MatHeaderRow, MatHeaderRowDef,
@@ -13,10 +13,9 @@ import {PortCallGanttCalendarHeaderComponent} from '../port-call-gantt-calendar-
 import {SplitAreaComponent, SplitComponent} from 'angular-split';
 import {MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule} from '@angular/material/tree';
 import {FlatTreeControl} from '@angular/cdk/tree';
-import {MatIconButton} from '@angular/material/button';
-import {MatIcon} from '@angular/material/icon';
 import {ParentMarker, TaskFlatNode, TaskNode, TimelineDayCell} from '../gantt-interface';
 import {EXAMPLE_DATA} from '../gant-data';
+import {PortCallGanttTable} from '../port-call-gantt-table/port-call-gantt-table';
 
 @Component({
   selector: 'app-port-call-gantt',
@@ -32,23 +31,18 @@ import {EXAMPLE_DATA} from '../gant-data';
     MatHeaderRowDef,
     MatRowDef,
     FormsModule,
-    MatFooterCell,
-    MatFooterCellDef,
-    MatFooterRow,
-    MatFooterRowDef,
     SplitComponent,
     SplitAreaComponent,
     MatTreeModule,
-    MatIconButton,
-    MatIcon,
-    PortCallGanttCalendarHeaderComponent
+    PortCallGanttCalendarHeaderComponent,
+    PortCallGanttTable
   ],
   templateUrl: './port-call-gantt.component.html',
   styleUrl: './port-call-gantt.component.css',
 })
 export class PortCallGanttComponent implements OnInit, AfterViewInit{
 
-  dayWidth = 52;
+  dayWidth = 48;
   weekWidth = 140;
 
   today = new Date();
@@ -62,9 +56,9 @@ export class PortCallGanttComponent implements OnInit, AfterViewInit{
   projectStart = new Date(2026, 0, 1);
   projectEnd   = new Date(2027, 0, 1);
 
-  rowHeaderHeight = 66;
+  rowHeaderHeight = 64;
 
-  leftColumns = ['name', 'owner', 'status', 'priority'];
+
   rightColumns = ['gantt'];
 
   private scrollTry = 0;
@@ -273,11 +267,9 @@ export class PortCallGanttComponent implements OnInit, AfterViewInit{
 
   private waitForScrollableAndScrollToToday() {
     const el = this.xScroll?.nativeElement;
-    const rt = this.rightArea?.nativeElement;
+    if (!el) return;
 
-    if (!el || !rt) return;
-
-    const viewport = rt.clientWidth;
+    const viewport = el.clientWidth;
     const scrollWidth = el.scrollWidth;
 
     if (viewport <= 0 || scrollWidth <= 0) {
@@ -308,6 +300,7 @@ export class PortCallGanttComponent implements OnInit, AfterViewInit{
   }
 
   onGanttScroll(left: number) {
+    console.log('onGanttScroll', left);
     const x = -left;
 
     this.headerEl.nativeElement.style.transform =
@@ -416,16 +409,15 @@ export class PortCallGanttComponent implements OnInit, AfterViewInit{
     if (!this.xScroll) return;
 
     const el = this.xScroll.nativeElement;
-    const rt = this.rightArea?.nativeElement;
-    if (!rt) return;
 
-    if (el.scrollWidth <= rt.clientWidth) return;
+    const viewport = el.clientWidth;
+    if (viewport <= 0) return;
 
-    const viewport = rt.clientWidth;
+    if (el.scrollWidth <= viewport) return;
 
     // todayOffset у нас в центре клетки → чтобы показать клетку с today в начале,
     // смещаемся на половину шага влево и добавляем небольшой отступ
-    const leftPadding = 8; // можно 0/8/16 как нравится
+    const leftPadding = 0; // можно 0/8/16 как нравится
 
     let target =
       align === 'start'
@@ -435,6 +427,8 @@ export class PortCallGanttComponent implements OnInit, AfterViewInit{
     target = Math.max(0, Math.min(target, el.scrollWidth - viewport));
 
     el.scrollLeft = target;
+
+    // оставляем, если ти продовжуєш використовувати transform-синхронізацію
     this.onGanttScroll(target);
   }
 
