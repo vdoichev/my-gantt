@@ -13,10 +13,9 @@ import {PortCallGanttCalendarHeaderComponent} from '../port-call-gantt-calendar-
 import {SplitAreaComponent, SplitComponent} from 'angular-split';
 import {MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule} from '@angular/material/tree';
 import {FlatTreeControl} from '@angular/cdk/tree';
-import {MatIconButton} from '@angular/material/button';
-import {MatIcon} from '@angular/material/icon';
 import {ParentMarker, TaskFlatNode, TaskNode, TimelineDayCell} from '../gantt-interface';
 import {EXAMPLE_DATA} from '../gant-data';
+import {PortCallGanttTable} from '../port-call-gantt-table/port-call-gantt-table';
 
 @Component({
   selector: 'app-port-call-gantt',
@@ -39,9 +38,8 @@ import {EXAMPLE_DATA} from '../gant-data';
     SplitComponent,
     SplitAreaComponent,
     MatTreeModule,
-    MatIconButton,
-    MatIcon,
-    PortCallGanttCalendarHeaderComponent
+    PortCallGanttCalendarHeaderComponent,
+    PortCallGanttTable
   ],
   templateUrl: './port-call-gantt.component.html',
   styleUrl: './port-call-gantt.component.css',
